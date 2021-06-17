@@ -4,7 +4,13 @@ from typing import Tuple
 from math import floor
 from pymongo.errors import OperationFailure
 
+import logging
+import sys
+
 from api_types import User
+
+
+logger = logging.getLogger(__name__)
 
 
 PAGE_LIMIT = 20
@@ -45,6 +51,9 @@ async def get_users(
             .to_list(length=PAGE_LIMIT)
         )
     except OperationFailure:
+        _, exc, _ = sys.exc_info()
+        logger.error(exc)
+
         # probably an invalid regex, just return nothing
         total_count = 0
         results = []
