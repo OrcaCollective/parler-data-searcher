@@ -18,7 +18,7 @@ PAGE_LIMIT = 20
 
 def _get_users_query(search_term: str) -> dict:
     search_regex = {
-        "$regex": f"^{search_term}*",
+        "$regex": f".*{search_term}.*",
         "$options": "i",
     }
 
