@@ -55,11 +55,9 @@ async def users(search_term):
 
     page_count, results = await api.get_users(mongo, search_term, page)
 
-    results_html = await api.render_users(results)
-
     return await render_template(
-        "index.html",
-        results_html=results_html,
+        "users.html",
+        users=results,
         page=page,
         search_term=search_term,
         page_count=page_count,

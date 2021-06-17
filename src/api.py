@@ -1,4 +1,3 @@
-from quart import render_template
 from quart_motor import Motor
 from typing import Tuple
 from math import floor
@@ -61,7 +60,3 @@ async def get_users(
     page_count = floor(total_count / PAGE_LIMIT) + 1
 
     return page_count, results
-
-
-async def render_users(users: list[User]) -> str:
-    return await render_template("users_results.html", users=users)
