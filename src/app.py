@@ -41,6 +41,7 @@ async def posts():
     return json.dumps(post, default=json_util.default), 200
 
 
+@app.route("/users", defaults={"search_term": ""}, strict_slashes=False)
 @app.route("/users/<search_term>")
 async def users(search_term):
     page = request.args.get("page", 0)
@@ -48,6 +49,9 @@ async def users(search_term):
         page = int(page)
     except ValueError:
         page = 0
+
+    if not search_term:
+        return await render_template("index.html")
 
     page_count, results = await api.get_users(mongo, search_term, page)
 
