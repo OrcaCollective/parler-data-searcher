@@ -15,3 +15,49 @@ h1 {
 footer {
   margin-top: 1em;
 }
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  padding: 2em;
+  background-color: cyan;
+  font-weight: 600;
+}
+
+.search-form > label {
+  display: flex;
+  white-space: nowrap;
+  margin-bottom: 1em;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search-form > label > * {
+  margin-left: 1em;
+  width: 12em;
+}
+
+.entity-input {
+  padding: 5px;
+  border: 1px solid lightgrey;
+  border-radius: 3px;
+  font-size: 16px;
+}
+
+button {
+  font-size: 16px;
+  border-radius: 3px;
+  background-color: lightgrey;
+  border: 1px solid grey;
+  box-shadow: 2px 2px teal;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: yellow;
+}
+
+button:active {
+  box-shadow: none;
+}

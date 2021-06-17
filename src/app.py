@@ -1,10 +1,12 @@
 #!/usr/bin/env python
-from quart import Quart, render_template
+from quart import Quart, render_template, request, redirect
 from quart_motor import Motor
 from bson import json_util
 
 import json
 import os
+
+import api
 
 MONGO_USER = os.environ.get("MONGO_USER")
 MONGO_PASS = os.environ.get("MONGO_PASS")
@@ -23,6 +25,12 @@ mongo = Motor(
 ################################################################################
 @app.route("/")
 async def home():
+    search_term = request.args.get("search_term")
+
+    if search_term is not None:
+        search_type = request.args.get("search_type", "users")
+        return redirect(f"/{search_type}/{search_term}")
+
     return await render_template("index.html")
 
 
@@ -32,9 +40,20 @@ async def posts():
     return json.dumps(post, default=json_util.default), 200
 
 
-@app.route("/users")
-async def users():
-    return json.dumps(await mongo.db.users.find_one(), default=json_util.default), 200
+@app.route("/users/<search_term>")
+async def users(search_term):
+    page = int(request.args.get("page", 0))
+
+    results = await api.get_users(mongo, search_term, page)
+
+    results_html = await api.render_users(results)
+
+    return await render_template(
+        "index.html",
+        results_html=results_html,
+        page=page,
+        search_term=search_term,
+    )
 
 
 if __name__ == "__main__":
