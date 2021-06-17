@@ -2,6 +2,7 @@ from quart import render_template
 from quart_motor import Motor
 from typing import Tuple
 from math import floor
+from pymongo.errors import OperationFailure
 
 from api_types import User
 
@@ -34,14 +35,21 @@ async def get_users(
 ) -> Tuple[int, list[User]]:
     skip = page * PAGE_LIMIT
     query = _get_users_query(search_term)
-    total_count: int = await mongo.db.users.count_documents(query)
+
+    try:
+        total_count: int = await mongo.db.users.count_documents(query)
+        results: list[User] = (
+            await mongo.db.users.find(query)
+            .skip(skip)
+            .limit(PAGE_LIMIT)
+            .to_list(length=PAGE_LIMIT)
+        )
+    except OperationFailure:
+        # probably an invalid regex, just return nothing
+        total_count = 0
+        results = []
+
     page_count = floor(total_count / PAGE_LIMIT) + 1
-    results: list[User] = (
-        await mongo.db.users.find(query)
-        .skip(skip)
-        .limit(PAGE_LIMIT)
-        .to_list(length=PAGE_LIMIT)
-    )
 
     return page_count, results
 

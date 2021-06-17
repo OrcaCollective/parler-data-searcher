@@ -61,3 +61,8 @@ button:hover {
 button:active {
   box-shadow: none;
 }
+
+.no-results {
+  font-weight: 600;
+  margin: 2em;
+}
