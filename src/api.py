@@ -55,4 +55,4 @@ async def get_users(
 
 
 async def render_users(users: list[User]) -> str:
-    return await render_template("users_results.jinja", users=users)
+    return await render_template("users_results.html", users=users)
