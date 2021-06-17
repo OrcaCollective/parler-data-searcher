@@ -29,7 +29,8 @@ async def home():
 
     if search_term is not None:
         search_type = request.args.get("search_type", "users")
-        return redirect(f"/{search_type}/{search_term}")
+        page = request.args.get("page", 0)
+        return redirect(f"/{search_type}/{search_term}?page={page}")
 
     return await render_template("index.html")
 
@@ -42,9 +43,13 @@ async def posts():
 
 @app.route("/users/<search_term>")
 async def users(search_term):
-    page = int(request.args.get("page", 0))
+    page = request.args.get("page", 0)
+    try:
+        page = int(page)
+    except ValueError:
+        page = 0
 
-    results = await api.get_users(mongo, search_term, page)
+    page_count, results = await api.get_users(mongo, search_term, page)
 
     results_html = await api.render_users(results)
 
@@ -53,6 +58,7 @@ async def users(search_term):
         results_html=results_html,
         page=page,
         search_term=search_term,
+        page_count=page_count,
     )
 
 

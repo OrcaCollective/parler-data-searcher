@@ -14,6 +14,18 @@
 			Search term:
 			<input class="entity-input" type="text" placeholder="Username" name="search_term" value="{{ search_term }}" />
 		</label>
+
+		{% if page_count %}
+			<label>
+				Page:
+				<select class="entity-input" name="page">
+					{% for i in range(page_count) %}
+						<option value="{{ i }}" {% if i == page %}selected="true"{% endif %}>{{ i }}</option>
+					{% endfor %}
+				</select>
+			</label>
+		{% endif %}
+
 		<button type="submit">Open your eyes</button>
 	</form>
 
