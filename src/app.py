@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-from flask import Flask, render_template
+from quart import Quart, render_template
 
 
-app = Flask(__name__, static_folder="public", template_folder="views")
+app = Quart(__name__, static_folder="public", template_folder="views")
 
 
 ################################################################################
 # Home page reroute
 ################################################################################
 @app.route("/")
-def home():
-    return render_template("index.html")
+async def home():
+    return await render_template("index.html")
 
 
 if __name__ == "__main__":
