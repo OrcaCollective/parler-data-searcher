@@ -12,5 +12,5 @@ Build the image with `docker build -t <tag> .`. Run it with `docker run -p 5000:
 2. Activate the virtual environment: `source venv/bin/activate`
 3. Install dependencies: `pip install -r requirements-dev.txt`
 4. Install the pre-commit hook: `pre-commit install`
-5. Run the app: `FLASK_ENV=development python src/app.py`
+5. Run the app: `FLASK_ENV=development MONGO_USER=<mongo username> MONGO_PASS=<mongo password> MONGO_ENDPOINT=<mongo endpoint> MONGO_PORT=<mongo port> python src/app.py`
 6. Make changes and contribute 🙌
