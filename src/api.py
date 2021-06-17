@@ -4,7 +4,6 @@ from math import floor
 from pymongo.errors import OperationFailure
 
 import logging
-import sys
 
 from api_types import User
 
@@ -49,9 +48,8 @@ async def get_users(
             .limit(PAGE_LIMIT)
             .to_list(length=PAGE_LIMIT)
         )
-    except OperationFailure:
-        _, exc, _ = sys.exc_info()
-        logger.error(exc)
+    except OperationFailure as err:
+        logger.error(err)
 
         # probably an invalid regex, just return nothing
         total_count = 0
