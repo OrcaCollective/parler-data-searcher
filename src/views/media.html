@@ -1,0 +1,9 @@
+<ul>
+   <li><strong>Link:</strong> <a href="{{ media.link }}" target="_blank" rel="noopener noreferrer">{{ media.title if media.title else media.link }}</a></li>
+   {% if media.image %}
+      <li><img src="{{ media.image }}" width="200" height="200" /></li>
+   {% endif %}
+   {% if media.excerpt %}
+      <li><strong>Excerpt:</strong> {{ media.excerpt }}</li>
+   {% endif %}
+</ul>

@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 from quart import Quart, render_template, request, redirect
 from quart_motor import Motor
-from bson import json_util
-
-import json
 import os
 
 import api
@@ -35,10 +32,28 @@ async def home():
     return await render_template("index.html")
 
 
-@app.route("/posts")
-async def posts():
-    post = await mongo.db.posts.find_one()
-    return json.dumps(post, default=json_util.default), 200
+@app.route("/posts", defaults={"search_term": ""}, strict_slashes=False)
+@app.route("/posts/<search_term>")
+async def posts(search_term):
+    page = request.args.get("page", 0)
+    try:
+        page = int(page)
+    except ValueError:
+        page = 0
+
+    if not search_term:
+        return await render_template("index.html")
+
+    page_count, results = await api.get_posts(mongo, search_term, page)
+
+    return await render_template(
+        "posts.html",
+        posts=results,
+        page=page,
+        search_term=search_term,
+        page_count=page_count,
+        search_type="posts",
+    )
 
 
 @app.route("/users", defaults={"search_term": ""}, strict_slashes=False)
@@ -61,6 +76,7 @@ async def users(search_term):
         page=page,
         search_term=search_term,
         page_count=page_count,
+        search_type="users",
     )
 
 

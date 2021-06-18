@@ -66,3 +66,11 @@ button:active {
   font-weight: 600;
   margin: 2em;
 }
+
+.post-container {
+  margin-bottom: 2em;
+  border: 1px solid black;
+  border-radius: 3px;
+  width: 30em;
+  padding: 1em 2em;
+}

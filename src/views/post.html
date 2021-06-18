@@ -1,0 +1,29 @@
+<ul class="{{ wrapper_class }}">
+    <li><strong>Username:</strong> {{ post.username }}</li>
+    {% if post.text %}
+        <li><strong>Content:</strong> {{ post.text }}</li>
+    {% endif %}
+    {% if post.echo %}
+        {% with post = post.echo %}
+            {% with wrapper_class = "echo-container" %}
+                <li><strong>Echo:</strong> {% include "post.html" %}</li>
+            {% endwith %}
+        {% endwith %}
+    {% endif %}
+    {% if post.comments %}
+        {% with comments = post.comments %}
+            <li><strong>Comments: </strong> {% include "comments.html" %}</li>
+        {% endwith %}
+    {% endif %}
+    {% if post.media %}
+        {% with media = post.media %}
+            <li><strong>Media: </strong> {% include "media.html" %}</li>
+        {% endwith %}
+    {% endif %}
+    {% if post.image %}
+        <li><strong>Image: </strong> {{ post.image }}</li>
+    {% endif %}
+    {% if post.video %}
+        <li><strong>Video: </strong> {{ post.video }}</li>
+    {% endif %}
+</ul>
