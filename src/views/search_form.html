@@ -1,9 +1,19 @@
 <form action="/" class="search-form">
     <label>
         Search type:
-        <select class="entity-input">
-            <option value="users">Users</option>
-            <option value="posts">Posts</option>
+        <select class="entity-input" name="search_type">
+            <option
+                value="users"
+                {% if search_type == "users" %}selected="true"{% endif %}
+            >
+                Users
+            </option>
+            <option
+                value="posts"
+                {% if search_type == "posts" %}selected="true"{% endif %}
+            >
+                Posts
+            </option>
         </select>
     </label>
 

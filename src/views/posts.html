@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% include "search_form.html" %}
+
+    <section>
+        {% for post in posts %}
+            {% with wrapper_class = "post-container" %}
+                {% include "post.html" %}
+            {% endwith %}
+        {% endfor %}
+        {% if not posts %}
+            <div class="no-results">
+                No results found for this query
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}
