@@ -56,7 +56,7 @@ async def get_users(
         total_count: int = await total_count_f
         results: list[User] = await results_f
     except OperationFailure as err:
-        logger.error(err)
+        logger.error(f"Failure retrieving users: {err}")
 
         # probably an invalid regex, just return nothing
         total_count = 0
@@ -108,7 +108,7 @@ async def get_posts(
         total_count: int = await total_count_f
         results: list[Post] = await results_f
     except OperationFailure as err:
-        logger.error(err)
+        logger.error(f"Failure retrieving posts: {err}")
 
         # probably an invalid regex, just return nothing
         total_count = 0
