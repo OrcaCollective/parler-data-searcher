@@ -16,7 +16,7 @@ MONGO_PORT = os.environ.get("MONGO_PORT")
 app = Quart(__name__, static_folder="public", template_folder="views")
 
 # automatically reload templates in development
-app.config["TEMPLATES_AUTO_RELOAD"] = os.environ.get("FLASK_ENV") == "development"
+app.config["TEMPLATES_AUTO_RELOAD"] = os.environ.get("QUART_ENV") == "development"
 
 mongo = Motor(
     app, uri=f"mongodb://{MONGO_USER}:{MONGO_PASS}@{MONGO_ENDPOINT}:{MONGO_PORT}/parler"
