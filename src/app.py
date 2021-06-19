@@ -2,8 +2,11 @@
 from quart import Quart, render_template, request, redirect
 from quart_motor import Motor
 import os
+from dotenv import load_dotenv
 
 import api
+
+load_dotenv()
 
 MONGO_USER = os.environ.get("MONGO_USER")
 MONGO_PASS = os.environ.get("MONGO_PASS")
