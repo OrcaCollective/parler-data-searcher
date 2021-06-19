@@ -4,7 +4,7 @@
         <li><strong>Content:</strong> {{ post.text }}</li>
     {% endif %}
     {% if post.echo %}
-        {% with post=post.echo wrapper_class="echo-container" %}
+        {% with post=post.echo, wrapper_class="echo-container" %}
             <li><strong>Echo:</strong> {% include "post.html" %}</li>
         {% endwith %}
     {% endif %}
