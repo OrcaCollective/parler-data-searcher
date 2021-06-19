@@ -3,7 +3,6 @@ FROM python:3.9-slim
 ENV QUART_ENV=production
 
 COPY requirements.txt /app/requirements.txt
-COPY .env /app/.env
 
 WORKDIR /app
 

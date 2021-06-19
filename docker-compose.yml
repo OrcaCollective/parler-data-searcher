@@ -5,7 +5,5 @@ services:
     build: .
     ports:
       - 5000:5000
-    environment:
-      - QUART_ENV=production
     env_file:
       - .env
