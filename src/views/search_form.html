@@ -1,7 +1,6 @@
 <script>
 function resetPageNumber() {
-    let searchType, searchTerm;
-    [, searchType, searchTerm] = window.location.pathname.split("/")
+    const [, searchType, searchTerm] = window.location.pathname.split("/")
     const form = document.getElementById("search-form")
     if (form.search_type.value !== searchType || form.search_term.value !== searchTerm) {
         form.page.value = 0;
