@@ -33,25 +33,42 @@ def get_users_query(search_term: str) -> dict:
     }
 
 
-def get_post_query(search_term: str) -> dict:
-    search_regex = {
-        "$regex": f".*{search_term}.*",
-        "$options": "i",
-    }
+def get_post_query(search_term: str, search_content: str) -> dict:
+    username_query = []
+    if search_term:
+        username_regex = {
+            "$regex": f".*{search_term}.*",
+            "$options": "i",
+        }
+        username_query = [
+            {
+                "username": username_regex,
+            },
+            {
+                "comments.username": username_regex,
+            },
+            {
+                "echo.username": username_regex,
+            },
+        ]
 
-    return {
-        "$or": [
+    content_query = []
+    if search_content:
+        content_regex = {
+            "$regex": f".*{search_content}.*",
+            "$options": "i",
+        }
+        content_query = [
             {
-                "username": search_regex,
+                "text": content_regex,
             },
-            {
-                "comments.username": search_regex,
-            },
-            {
-                "echo.username": search_regex,
-            },
-        ],
-    }
+        ]
+
+    # avoid an empty $or clause which will cause an error
+    if not username_query and not content_query:
+        return {}
+
+    return {"$or": username_query + content_query}
 
 
 async def get_entities(

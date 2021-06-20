@@ -10,19 +10,63 @@
     <link rel="stylesheet" href="/public/style.css">
 </head>
 <body>
-<header>
-    <h1>
-        Parler Data Searcher
-    </h1>
-</header>
+    <header>
+        <h1>
+            Parler Data Searcher
+        </h1>
+    </header>
 
-{% block content %}{% endblock %}
+    <script>
+    function resetPageNumber() {
+        const [, searchType, searchTerm] = window.location.pathname.split("/")
+        const form = document.getElementById("search-form")
+        if (form.search_type.value !== searchType || form.search_term.value !== searchTerm) {
+            form.page.value = 0;
+        }
+    }
+    </script>
+    <form action="/" class="search-form" id="search-form" onsubmit="resetPageNumber();" autocomplete="off">
+        <label>
+            Search type:
+            <select class="entity-input" name="search_type">
+                <option
+                    value="users"
+                    {% if search_type == "users" %}selected="true"{% endif %}
+                >
+                    Users
+                </option>
+                <option
+                    value="posts"
+                    {% if search_type == "posts" %}selected="true"{% endif %}
+                >
+                    Posts
+                </option>
+            </select>
+        </label>
 
-<hr />
+        {% block form_fields %}{% endblock %}
 
-<footer>
-    <a href="http://twitter.com/TechBlocSEA">If I break message TechBloc</a>
-</footer>
+        {% if page_count %}
+            <label>
+                Page:
+                <select class="entity-input" name="page">
+                    {% for i in range(page_count) %}
+                        <option value="{{ i }}" {% if i == page %}selected="true"{% endif %}>{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        {% endif %}
+
+        <button type="submit">Open your eyes</button>
+    </form>
+
+    {% block content %}{% endblock %}
+
+    <hr />
+
+    <footer>
+        <a href="http://twitter.com/TechBlocSEA">If I break message TechBloc</a>
+    </footer>
 
 </body>
 </html>

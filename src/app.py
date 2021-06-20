@@ -24,34 +24,44 @@ mongo = Motor(
 ################################################################################
 # Home page reroute
 ################################################################################
+ROUTE_PARAMS = {
+    "search_type",
+}
+
+
 @app.route("/")
 async def home():
-    search_term = request.args.get("search_term")
+    search_type = request.args.get("search_type")
 
-    if search_term is not None:
-        search_type = request.args.get("search_type", "users")
-        page = request.args.get("page", 0)
-        return redirect(f"/{search_type}/{search_term}?page={page}")
+    if search_type is not None:
+        query_params = []
+        for key, value in request.args.items():
+            if key in ROUTE_PARAMS:
+                continue
+            query_params.append(f"{key}={value}")
+
+        return redirect(f"/{search_type}?{'&'.join(query_params)}")
 
     return await render_template("index.html")
 
 
-@app.route("/posts", defaults={"search_term": ""}, strict_slashes=False)
-@app.route("/posts/<search_term>")
-async def posts(search_term):
+@app.route("/posts", strict_slashes=False)
+async def posts():
+    search_term = request.args.get("search_term", "")
+    search_content = request.args.get("search_content", "")
     page = request.args.get("page", 0)
     try:
         page = int(page)
     except ValueError:
         page = 0
 
-    if not search_term:
-        return await render_template("index.html")
+    if not search_term and not search_content:
+        return await render_template("posts.html")
 
     page_count, results = await api.get_entities(
         mongo,
         "posts",
-        api.get_post_query(search_term),
+        api.get_post_query(search_term, search_content),
         page,
         Post,
     )
@@ -61,14 +71,15 @@ async def posts(search_term):
         posts=results,
         page=page,
         search_term=search_term,
+        search_content=search_content,
         page_count=page_count,
         search_type="posts",
     )
 
 
-@app.route("/users", defaults={"search_term": ""}, strict_slashes=False)
-@app.route("/users/<search_term>")
-async def users(search_term):
+@app.route("/users", strict_slashes=False)
+async def users():
+    search_term = request.args.get("search_term")
     page = request.args.get("page", 0)
     try:
         page = int(page)
@@ -76,7 +87,7 @@ async def users(search_term):
         page = 0
 
     if not search_term:
-        return await render_template("index.html")
+        return await render_template("users.html")
 
     page_count, results = await api.get_entities(
         mongo,
