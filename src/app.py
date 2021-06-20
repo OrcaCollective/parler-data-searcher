@@ -4,6 +4,7 @@ from quart_motor import Motor
 import os
 from dotenv import load_dotenv
 
+from api_types import User, Post
 import api
 
 load_dotenv()
@@ -47,7 +48,13 @@ async def posts(search_term):
     if not search_term:
         return await render_template("index.html")
 
-    page_count, results = await api.get_posts(mongo, search_term, page)
+    page_count, results = await api.get_entities(
+        mongo,
+        "posts",
+        api.get_post_query(search_term),
+        page,
+        Post,
+    )
 
     return await render_template(
         "posts.html",
@@ -71,7 +78,13 @@ async def users(search_term):
     if not search_term:
         return await render_template("index.html")
 
-    page_count, results = await api.get_users(mongo, search_term, page)
+    page_count, results = await api.get_entities(
+        mongo,
+        "users",
+        api.get_users_query(search_term),
+        page,
+        User,
+    )
 
     return await render_template(
         "users.html",

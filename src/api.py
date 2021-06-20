@@ -1,12 +1,12 @@
 from quart_motor import Motor
-from typing import Tuple
+from typing import Tuple, Type, TypeVar
 from math import floor
 from pymongo.errors import OperationFailure
 
 import logging
 import asyncio
 
-from api_types import User, Post
+T = TypeVar("T")
 
 
 logger = logging.getLogger(__name__)
@@ -15,13 +15,13 @@ logger = logging.getLogger(__name__)
 PAGE_LIMIT = 20
 
 
-def _get_users_query(search_term: str) -> dict:
+def get_users_query(search_term: str) -> dict:
     search_regex = {
         "$regex": f".*{search_term}.*",
         "$options": "i",
     }
 
-    query = {
+    return {
         "$or": [
             {
                 "name": search_regex,
@@ -32,46 +32,13 @@ def _get_users_query(search_term: str) -> dict:
         ],
     }
 
-    return query
 
-
-async def get_users(
-    mongo: Motor, search_term: str, page: int
-) -> Tuple[int, list[User]]:
-    skip = page * PAGE_LIMIT
-    query = _get_users_query(search_term)
-
-    try:
-        total_count_f = mongo.db.users.count_documents(query)
-        results_f = (
-            mongo.db.users.find(query)
-            .skip(skip)
-            .limit(PAGE_LIMIT)
-            .to_list(length=PAGE_LIMIT)
-        )
-        await asyncio.wait(
-            {total_count_f, results_f}, return_when=asyncio.FIRST_EXCEPTION
-        )
-        # indiscriminantly await each future, if one failed then the exception will raise as expected
-        total_count: int = await total_count_f
-        results: list[User] = await results_f
-    except OperationFailure as err:
-        logger.error(f"Failure retrieving users: {err}")
-
-        # probably an invalid regex, just return nothing
-        total_count = 0
-        results = []
-
-    page_count = floor(total_count / PAGE_LIMIT) + 1
-
-    return page_count, results
-
-
-def _get_post_query(search_term: str) -> dict:
+def get_post_query(search_term: str) -> dict:
     search_regex = {
         "$regex": f".*{search_term}.*",
         "$options": "i",
     }
+
     return {
         "$or": [
             {
@@ -87,16 +54,16 @@ def _get_post_query(search_term: str) -> dict:
     }
 
 
-async def get_posts(
-    mongo: Motor, search_term: str, page: int
-) -> Tuple[int, list[Post]]:
+async def get_entities(
+    mongo: Motor, collection: str, query: dict, page: int, entity: Type[T]
+) -> Tuple[int, list[T]]:
     skip = page * PAGE_LIMIT
-    query = _get_post_query(search_term)
 
     try:
-        total_count_f = mongo.db.posts.count_documents(query)
+        total_count_f = mongo.db[collection].count_documents(query)
         results_f = (
-            mongo.db.posts.find(query)
+            mongo.db[collection]
+            .find(query)
             .skip(skip)
             .limit(PAGE_LIMIT)
             .to_list(length=PAGE_LIMIT)
@@ -106,9 +73,9 @@ async def get_posts(
         )
         # indiscriminantly await each future, if one failed then the exception will raise as expected
         total_count: int = await total_count_f
-        results: list[Post] = await results_f
+        results: list[T] = await results_f
     except OperationFailure as err:
-        logger.error(f"Failure retrieving posts: {err}")
+        logger.error(f"Failure retrieving {collection}: {err}")
 
         # probably an invalid regex, just return nothing
         total_count = 0
