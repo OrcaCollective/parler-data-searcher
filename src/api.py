@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 PAGE_LIMIT = 20
 
 
-def get_users_query(search_term: str) -> dict:
+def get_users_query(username: str) -> dict:
     search_regex = {
-        "$regex": f".*{search_term}.*",
+        "$regex": f".*{username}.*",
         "$options": "i",
     }
 
@@ -33,11 +33,11 @@ def get_users_query(search_term: str) -> dict:
     }
 
 
-def get_post_query(search_term: str, search_content: str) -> Optional[dict]:
+def get_post_query(username: str, search_content: str) -> Optional[dict]:
     username_query = []
-    if search_term:
+    if username:
         username_regex = {
-            "$regex": f".*{search_term}.*",
+            "$regex": f".*{username}.*",
             "$options": "i",
         }
         username_query = [

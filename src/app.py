@@ -48,7 +48,7 @@ async def home():
 
 @app.route("/posts", strict_slashes=False)
 async def posts():
-    search_term = request.args.get("search_term", "")
+    username = request.args.get("username", "")
     search_content = request.args.get("search_content", "")
     page = request.args.get("page", 0)
     try:
@@ -56,13 +56,13 @@ async def posts():
     except ValueError:
         page = 0
 
-    if not search_term and not search_content:
+    if not username and not search_content:
         return await render_template("posts.html")
 
     page_count, results = await api.get_entities(
         mongo,
         "posts",
-        api.get_post_query(search_term, search_content),
+        api.get_post_query(username, search_content),
         page,
         Post,
     )
@@ -71,7 +71,7 @@ async def posts():
         "posts.html",
         posts=results,
         page=page,
-        search_term=search_term,
+        username=username,
         search_content=search_content,
         page_count=page_count,
         search_type="posts",
@@ -80,20 +80,20 @@ async def posts():
 
 @app.route("/users", strict_slashes=False)
 async def users():
-    search_term = request.args.get("search_term")
+    username = request.args.get("username")
     page = request.args.get("page", 0)
     try:
         page = int(page)
     except ValueError:
         page = 0
 
-    if not search_term:
+    if not username:
         return await render_template("users.html")
 
     page_count, results = await api.get_entities(
         mongo,
         "users",
-        api.get_users_query(search_term),
+        api.get_users_query(username),
         page,
         User,
     )
@@ -102,7 +102,7 @@ async def users():
         "users.html",
         users=results,
         page=page,
-        search_term=search_term,
+        username=username,
         page_count=page_count,
         search_type="users",
     )
