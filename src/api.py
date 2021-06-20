@@ -1,5 +1,5 @@
 from quart_motor import Motor
-from typing import Tuple, Type, TypeVar
+from typing import Optional, Tuple, Type, TypeVar
 from math import floor
 from pymongo.errors import OperationFailure
 
@@ -33,7 +33,7 @@ def get_users_query(search_term: str) -> dict:
     }
 
 
-def get_post_query(search_term: str, search_content: str) -> dict:
+def get_post_query(search_term: str, search_content: str) -> Optional[dict]:
     username_query = []
     if search_term:
         username_regex = {
@@ -66,14 +66,17 @@ def get_post_query(search_term: str, search_content: str) -> dict:
 
     # avoid an empty $or clause which will cause an error
     if not username_query and not content_query:
-        return {}
+        return None
 
     return {"$or": username_query + content_query}
 
 
 async def get_entities(
-    mongo: Motor, collection: str, query: dict, page: int, entity: Type[T]
+    mongo: Motor, collection: str, query: Optional[dict], page: int, entity: Type[T]
 ) -> Tuple[int, list[T]]:
+    if query is None:
+        return 0, []
+
     skip = page * PAGE_LIMIT
 
     try:
