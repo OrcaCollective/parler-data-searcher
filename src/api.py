@@ -6,6 +6,8 @@ from pymongo.errors import OperationFailure
 import logging
 import asyncio
 
+T = TypeVar("T")
+
 
 logger = logging.getLogger(__name__)
 
@@ -50,9 +52,6 @@ def get_post_query(search_term: str) -> dict:
             },
         ],
     }
-
-
-T = TypeVar("T")
 
 
 async def get_entities(
