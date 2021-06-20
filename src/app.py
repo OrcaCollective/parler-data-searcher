@@ -42,7 +42,8 @@ async def home():
 
         return redirect(f"/{search_type}?{'&'.join(query_params)}")
 
-    return await render_template("index.html")
+    # by default just render the users search
+    return await render_template("users.html")
 
 
 @app.route("/posts", strict_slashes=False)

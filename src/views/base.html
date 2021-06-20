@@ -16,49 +16,10 @@
         </h1>
     </header>
 
-    <script>
-    function resetPageNumber() {
-        const [, searchType, searchTerm] = window.location.pathname.split("/")
-        const form = document.getElementById("search-form")
-        if (form.search_type.value !== searchType || form.search_term.value !== searchTerm) {
-            form.page.value = 0;
-        }
-    }
-    </script>
-    <form action="/" class="search-form" id="search-form" onsubmit="resetPageNumber();" autocomplete="off">
-        <label>
-            Search type:
-            <select class="entity-input" name="search_type">
-                <option
-                    value="users"
-                    {% if search_type == "users" %}selected="true"{% endif %}
-                >
-                    Users
-                </option>
-                <option
-                    value="posts"
-                    {% if search_type == "posts" %}selected="true"{% endif %}
-                >
-                    Posts
-                </option>
-            </select>
-        </label>
-
-        {% block form_fields %}{% endblock %}
-
-        {% if page_count %}
-            <label>
-                Page:
-                <select class="entity-input" name="page">
-                    {% for i in range(page_count) %}
-                        <option value="{{ i }}" {% if i == page %}selected="true"{% endif %}>{{ i }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-        {% endif %}
-
-        <button type="submit">Open your eyes</button>
-    </form>
+    <div class="link-container">
+        <a href="/users">Search users</a>
+        <a href="/posts">Search posts</a>
+    </div>
 
     {% block content %}{% endblock %}
 

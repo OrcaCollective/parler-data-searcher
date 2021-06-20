@@ -1,13 +1,17 @@
-{% extends "base.html" %}
+{% extends "form_base.html" %}
 
 {% block form_fields %}
+    <h2 class="form-header">Users</h2>
+
+    <input type="hidden" value="users" name="search_type" />
+
     <label>
         Search term:
         <input class="entity-input" type="text" placeholder="Search term" name="search_term" value="{{ search_term }}" />
     </label>
 {% endblock %}
 
-{% block content %}
+{% block results %}
     <section>
         {% for user in users %}
             <ul>

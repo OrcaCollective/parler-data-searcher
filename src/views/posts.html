@@ -1,6 +1,10 @@
-{% extends "base.html" %}
+{% extends "form_base.html" %}
 
 {% block form_fields %}
+    <h2 class="form-header">Posts</h2>
+
+    <input type="hidden" value="posts" name="search_type" />
+
     <label>
         User fields:
         <input
@@ -24,7 +28,7 @@
     </label>
 {% endblock %}
 
-{% block content %}
+{% block results %}
     <section>
         {% for post in posts %}
             {% with wrapper_class = "post-container" %}
