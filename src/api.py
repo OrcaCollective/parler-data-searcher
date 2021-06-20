@@ -62,6 +62,15 @@ def get_post_query(username: str, search_content: str) -> Optional[dict]:
                 {
                     "text": content_regex,
                 },
+                {
+                    "media.title": content_regex,
+                },
+                {
+                    "comment.text": content_regex,
+                },
+                {
+                    "echo.text": content_regex,
+                },
             ],
         }
 
