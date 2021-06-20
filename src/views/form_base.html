@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <script>
+        function resetPageNumber() {
+            const search = new URLSearchParams(window.location.search);
+            const form = document.getElementById("search-form");
+            for (const [key, value] of search.entries()) {
+                if (key === 'page') {
+                    // don't reset page if page changed :)
+                    continue;
+                }
+                if (form[key].value !== value) {
+                    form.page.value = 0;
+                    break;
+                }
+            }
+        }
+    </script>
+    <form action="/" class="search-form" id="search-form" onsubmit="resetPageNumber();" autocomplete="off">
+        {% block form_fields %}{% endblock %}
+
+        {% if page_count %}
+            <label>
+                Page:
+                <select class="entity-input" name="page">
+                    {% for i in range(page_count) %}
+                        <option value="{{ i }}" {% if i == page %}selected="true"{% endif %}>{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        {% endif %}
+
+        <button type="submit">Open your eyes</button>
+    </form>
+
+    {% block results %}
+
+    {% endblock %}
+{% endblock %}

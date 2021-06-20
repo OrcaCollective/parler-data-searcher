@@ -10,19 +10,24 @@
     <link rel="stylesheet" href="/public/style.css">
 </head>
 <body>
-<header>
-    <h1>
-        Parler Data Searcher
-    </h1>
-</header>
+    <header>
+        <h1>
+            Parler Data Searcher
+        </h1>
+    </header>
 
-{% block content %}{% endblock %}
+    <div class="link-container">
+        <a href="/users">Search users</a>
+        <a href="/posts">Search posts</a>
+    </div>
 
-<hr />
+    {% block content %}{% endblock %}
 
-<footer>
-    <a href="http://twitter.com/TechBlocSEA">If I break message TechBloc</a>
-</footer>
+    <hr />
+
+    <footer>
+        <a href="http://twitter.com/TechBlocSEA">If I break message TechBloc</a>
+    </footer>
 
 </body>
 </html>

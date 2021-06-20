@@ -1,8 +1,23 @@
-{% extends "base.html" %}
+{% extends "form_base.html" %}
 
-{% block content %}
-    {% include "search_form.html" %}
+{% block form_fields %}
+    <h2 class="form-header">Users</h2>
 
+    <input type="hidden" value="users" name="search_type" />
+
+    <label>
+        Search term:
+        <input
+            class="entity-input"
+            type="search"
+            placeholder="Search term"
+            name="username"
+            value="{{ username }}"
+        />
+    </label>
+{% endblock %}
+
+{% block results %}
     <section>
         {% for user in users %}
             <ul>
@@ -10,7 +25,7 @@
                 <li><strong>Username:</strong> {{ user.username }}</li>
             </ul>
         {% endfor %}
-        {% if not users %}
+        {% if users == [] %}
             <div class="no-results">
                 No results found for this query
             </div>

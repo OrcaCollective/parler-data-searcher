@@ -1,15 +1,41 @@
-{% extends "base.html" %}
+{% extends "form_base.html" %}
 
-{% block content %}
-    {% include "search_form.html" %}
+{% block form_fields %}
+    <h2 class="form-header">Posts</h2>
 
+    <input type="hidden" value="posts" name="search_type" />
+
+    <label>
+        User fields:
+        <input
+            class="entity-input"
+            type="search"
+            placeholder="User fields"
+            name="username"
+            value="{{ username }}"
+        />
+    </label>
+
+    <label>
+        Content fields:
+        <input
+            class="entity-input"
+            type="search"
+            placeholder="Content fields"
+            name="search_content"
+            value="{{ search_content }}"
+        />
+    </label>
+{% endblock %}
+
+{% block results %}
     <section>
         {% for post in posts %}
             {% with wrapper_class = "post-container" %}
                 {% include "post.html" %}
             {% endwith %}
         {% endfor %}
-        {% if not posts %}
+        {% if posts == [] %}
             <div class="no-results">
                 No results found for this query
             </div>
