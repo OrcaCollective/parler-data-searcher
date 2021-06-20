@@ -3,6 +3,7 @@ from quart import Quart, render_template, request, redirect
 from quart_motor import Motor
 import os
 from dotenv import load_dotenv
+from urllib.parse import urlencode
 
 from api_types import User, Post
 import api
@@ -34,13 +35,10 @@ async def home():
     search_type = request.args.get("search_type")
 
     if search_type is not None:
-        query_params = []
-        for key, value in request.args.items():
-            if key in ROUTE_PARAMS:
-                continue
-            query_params.append(f"{key}={value}")
-
-        return redirect(f"/{search_type}?{'&'.join(query_params)}")
+        query_params = urlencode(
+            {k: v for k, v in request.args.items() if k not in ROUTE_PARAMS}
+        )
+        return redirect(f"/{search_type}?{query_params}")
 
     # by default just render the users search
     return await render_template("users.html")
