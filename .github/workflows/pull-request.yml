@@ -27,9 +27,10 @@ jobs:
       - name: Install Dependencies
         run: pip install -r requirements-dev.txt
       - name: Run pytest
-        run: pytest
+        run: ./bin/test.sh
         env:
           MONGO_USER: user
           MONGO_PASS: pass
           MONGO_ENDPOINT: localhost
           MONGO_PORT: 1312
+          PYTHONPATH: src
