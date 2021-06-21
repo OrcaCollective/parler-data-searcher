@@ -12,8 +12,7 @@ from constants import (
 
 SEARCH_LINK_TEMPLATE = '<a href="{url}">{text}</a>'
 
-USERNAME_REGEX = re.compile(r"@\w+")
-HASHTAG_REGEX = re.compile(r"#\w+")
+USERNAME_AND_HASHTAG_REGEX = re.compile(r"[@|#]\w+")
 
 
 def with_search_links(s: str):
@@ -26,24 +25,26 @@ def with_search_links(s: str):
     if not s:
         return s
 
-    with_user_links = USERNAME_REGEX.sub(_create_user_search_link, s)
-    with_hashtag_links = HASHTAG_REGEX.sub(_create_hashtag_search_link, with_user_links)
+    with_links = USERNAME_AND_HASHTAG_REGEX.sub(_create_search_link, s)
 
-    return Markup(with_hashtag_links)
-
-
-def _create_user_search_link(m: Match):
-    return SEARCH_LINK_TEMPLATE.format(
-        url=url_for(POSTS_PATH_COMPONENT, **{USERNAME_QUERY_PARAM: m.group(0)}),
-        text=m.group(0),
-    )
+    return Markup(with_links)
 
 
-def _create_hashtag_search_link(m: Match):
-    return SEARCH_LINK_TEMPLATE.format(
-        url=url_for(POSTS_PATH_COMPONENT, **{SEARCH_CONTENT_QUERY_PARAM: m.group(0)}),
-        text=m.group(0),
-    )
+def _create_search_link(m: Match):
+    if m.group(0).startswith("@"):
+        # create username link
+        return SEARCH_LINK_TEMPLATE.format(
+            url=url_for(POSTS_PATH_COMPONENT, **{USERNAME_QUERY_PARAM: m.group(0)}),
+            text=m.group(0),
+        )
+    else:
+        # create hashtag link
+        return SEARCH_LINK_TEMPLATE.format(
+            url=url_for(
+                POSTS_PATH_COMPONENT, **{SEARCH_CONTENT_QUERY_PARAM: m.group(0)}
+            ),
+            text=m.group(0),
+        )
 
 
 def register_filters(app: Quart):
