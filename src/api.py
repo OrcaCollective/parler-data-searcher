@@ -1,21 +1,21 @@
 from quart_motor import Motor
-from typing import Optional, Tuple, Type, TypeVar
+from typing import Optional, Tuple, TypeVar
 from math import floor
 from pymongo.errors import OperationFailure
 
 import logging
 import asyncio
 
+from src.api_types import User, Post
+
 T = TypeVar("T")
 
-
 logger = logging.getLogger(__name__)
-
 
 PAGE_LIMIT = 20
 
 
-def get_users_query(username: str) -> dict:
+def _search_users_query(username: str) -> dict:
     search_regex = {
         "$regex": f".*{username}.*",
         "$options": "i",
@@ -33,7 +33,7 @@ def get_users_query(username: str) -> dict:
     }
 
 
-def get_post_query(username: str, search_content: str) -> Optional[dict]:
+def _search_posts_query(username: str, search_content: str) -> Optional[dict]:
     username_query = {}
     if username:
         formatted_username = f"@{username}"
@@ -87,8 +87,8 @@ def get_post_query(username: str, search_content: str) -> Optional[dict]:
     return {"$and": [username_query, content_query]}
 
 
-async def get_entities(
-    mongo: Motor, collection: str, query: Optional[dict], page: int, entity: Type[T]
+async def _get_entities(
+    mongo: Motor, collection: str, query: Optional[dict], page: int
 ) -> Tuple[int, list[T]]:
     if query is None:
         return 0, []
@@ -120,3 +120,17 @@ async def get_entities(
     page_count = floor(total_count / PAGE_LIMIT) + 1
 
     return page_count, results
+
+
+async def search_users(
+    mongo: Motor, username: str, page: int = 0
+) -> Tuple[int, list[User]]:
+    return await _get_entities(mongo, "users", _search_users_query(username), page)
+
+
+async def search_posts(
+    mongo: Motor, username: str, content: str = "", page: int = 0
+) -> Tuple[int, list[Post]]:
+    return await _get_entities(
+        mongo, "posts", _search_posts_query(username, content), page
+    )
