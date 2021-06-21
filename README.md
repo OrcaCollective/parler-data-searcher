@@ -17,3 +17,7 @@ docker compose up
 5. Create a `.env` file with the following: `MONGO_USER`, `MONGO_PASS`, `MONGO_ENDPOINT`, and `MONGO_PORT`
 6. Run the app: `./bin/run_dev.sh`
 7. Make changes and contribute 🙌
+
+### Run tests
+
+Follow steps 1 - 3 above and then run `python -m pytest`.
