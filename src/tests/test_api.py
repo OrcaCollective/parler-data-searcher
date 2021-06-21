@@ -1,4 +1,4 @@
-from src import api
+import api
 
 
 def test_get_post_query_returns_None():
