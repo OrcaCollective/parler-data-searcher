@@ -19,7 +19,7 @@ footer {
 .search-form {
   display: flex;
   flex-direction: column;
-  max-width: 400px;
+  max-width: fit-content;
   padding: 2em;
   background-color: cyan;
   font-weight: 600;
