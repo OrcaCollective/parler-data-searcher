@@ -1,5 +1,5 @@
 <ul class="{{ wrapper_class }}">
-    <li><strong>Username:</strong> {{ post.username }}</li>
+    <li><strong>Username:</strong> <a href="{{ url_for('posts', username=post.username) }}">{{ post.username }}</a> </li>
     {% if post.text %}
         <li><strong>Content:</strong> {{ post.text }}</li>
     {% endif %}
