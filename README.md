@@ -20,4 +20,4 @@ docker compose up
 
 ### Run tests
 
-Follow steps 1 - 3 above and then run `python -m pytest`.
+Follow steps 1 - 3 above and then run `pytest`.

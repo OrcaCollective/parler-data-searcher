@@ -27,7 +27,7 @@ jobs:
       - name: Install Dependencies
         run: pip install -r requirements-dev.txt
       - name: Run pytest
-        run: python -m pytest
+        run: pytest
         env:
           MONGO_USER: user
           MONGO_PASS: pass
