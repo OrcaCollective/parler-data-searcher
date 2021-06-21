@@ -6,9 +6,9 @@ from pymongo.errors import OperationFailure
 import logging
 import asyncio
 
-from src.api_types import User, Post
+from api_types import User, Post
 
-T = TypeVar("T")
+T = TypeVar("T", User, Post)
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +88,10 @@ def _search_posts_query(username: str, search_content: str) -> Optional[dict]:
 
 
 async def _get_entities(
-    mongo: Motor, collection: str, query: Optional[dict], page: int
+    mongo: Motor,
+    collection: str,
+    query: Optional[dict],
+    page: int,
 ) -> Tuple[int, list[T]]:
     if query is None:
         return 0, []
@@ -123,13 +126,13 @@ async def _get_entities(
 
 
 async def search_users(
-    mongo: Motor, username: str, page: int = 0
+    mongo: Motor, username: str, page: int
 ) -> Tuple[int, list[User]]:
     return await _get_entities(mongo, "users", _search_users_query(username), page)
 
 
 async def search_posts(
-    mongo: Motor, username: str, content: str = "", page: int = 0
+    mongo: Motor, username: str, content: str, page: int
 ) -> Tuple[int, list[Post]]:
     return await _get_entities(
         mongo, "posts", _search_posts_query(username, content), page
