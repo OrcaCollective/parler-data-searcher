@@ -4,7 +4,9 @@
 
 ### If you just want to run the app
 
-Build the image with `docker build -t <tag> .`. Run it with `docker run -p 5000:5000 <tag>`.
+```sh
+docker compose up
+```
 
 ### If you want to make changes
 
