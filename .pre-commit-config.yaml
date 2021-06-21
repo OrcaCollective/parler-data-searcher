@@ -36,5 +36,3 @@ repos:
     rev: v0.902
     hooks:
         - id: mypy
-          additional_dependencies:
-            - Flask==2.0.1
