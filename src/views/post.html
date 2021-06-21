@@ -14,7 +14,7 @@
         {% endwith %}
     {% endif %}
     {% if post.media %}
-        {% with media = post.media %}
+        {% with media = post.media, wrapper_class="post-media-container" %}
             <li><strong>Media: </strong> {% include "media.html" %}</li>
         {% endwith %}
     {% endif %}

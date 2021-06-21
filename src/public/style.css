@@ -71,8 +71,17 @@ button:active {
   margin-bottom: 2em;
   border: 1px solid black;
   border-radius: 3px;
-  width: 30em;
+  max-width: 50em;
   padding: 1em 2em;
+}
+
+.post-container li {
+    margin: 0.5em;
+}
+
+.post-media-container img {
+    width: 100%;
+    height: 100%;
 }
 
 .link-container {
