@@ -5,7 +5,6 @@ import os
 from dotenv import load_dotenv
 from urllib.parse import urlencode
 
-from api_types import User, Post
 import api
 
 load_dotenv()
@@ -57,13 +56,7 @@ async def posts():
     if not username and not search_content:
         return await render_template("posts.html")
 
-    page_count, results = await api.get_entities(
-        mongo,
-        "posts",
-        api.get_post_query(username, search_content),
-        page,
-        Post,
-    )
+    page_count, results = await api.search_posts(mongo, username, search_content, page)
 
     return await render_template(
         "posts.html",
@@ -88,13 +81,7 @@ async def users():
     if not username:
         return await render_template("users.html")
 
-    page_count, results = await api.get_entities(
-        mongo,
-        "users",
-        api.get_users_query(username),
-        page,
-        User,
-    )
+    page_count, results = await api.search_users(mongo, username, page)
 
     return await render_template(
         "users.html",
