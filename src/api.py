@@ -36,7 +36,7 @@ def _search_users_query(username: str) -> dict:
 def _search_posts_query(username: str, search_content: str) -> Optional[dict]:
     username_query = {}
     if username:
-        formatted_username = f"@{username}"
+        formatted_username = username if username.startswith("@") else f"@{username}"
         username_query = {
             "$or": [
                 {
