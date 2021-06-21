@@ -6,7 +6,7 @@ from pymongo.errors import OperationFailure
 import logging
 import asyncio
 
-from api_types import User, Post
+from .api_types import User, Post
 
 T = TypeVar("T", User, Post)
 
