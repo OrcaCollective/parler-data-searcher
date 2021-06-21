@@ -35,6 +35,15 @@ def test_get_post_query_returns_only_content_query():
             {
                 "text": content_regex,
             },
+            {
+                "media.title": content_regex,
+            },
+            {
+                "comment.text": content_regex,
+            },
+            {
+                "echo.text": content_regex,
+            },
         ],
     }
 
@@ -66,6 +75,15 @@ def test_get_post_query_returns_full_query():
                 "$or": [
                     {
                         "text": content_regex,
+                    },
+                    {
+                        "media.title": content_regex,
+                    },
+                    {
+                        "comment.text": content_regex,
+                    },
+                    {
+                        "echo.text": content_regex,
                     },
                 ],
             },
