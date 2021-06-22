@@ -11,7 +11,7 @@ from constants import DB_USERS, DB_POSTS
 from enums import SearchBehavior
 
 
-T = TypeVar("T", User, Post)
+T = TypeVar("T", Post, User)
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +131,7 @@ async def _get_entities(
         total_count: int = await total_count_f
         results: list[T] = await results_f
     except OperationFailure as err:
-        logger.error(f"Failure retrieving {collection}: {err}")
+        logger.error(f"Failure retrieving {collection}: {err}", err)
 
         # probably an invalid regex, just return nothing
         total_count = 0
@@ -151,8 +151,8 @@ async def search_users(
 async def user_exists(mongo: Motor, username) -> bool:
     try:
         query = _get_user_query(username)
-        exists = await mongo.db[DB_USERS].find_one(query)
-        return bool(exists)
+        record = await mongo.db[DB_USERS].find_one(query)
+        return bool(record)
     except OperationFailure as err:
         logger.error(f"Failure while checking if user exists: {err}", err)
         return False
@@ -160,7 +160,7 @@ async def user_exists(mongo: Motor, username) -> bool:
 
 async def search_posts(
     mongo: Motor, username: str, content: str, page: int, behavior: SearchBehavior
-) -> Tuple[int, list[Post]]:
+) -> Tuple[int, list[Post], bool]:
     """
     Search for posts by username and/or content.
 
@@ -171,16 +171,21 @@ async def search_posts(
     :param behavior: If SearchBehavior.USERNAME_AGGRESSIVE, content will be ignored.
     :return:
     """
+    user_found = True
+
     # first, sniff what query we need to use
     if behavior == SearchBehavior.USERNAME_AGGRESSIVE:
-        if await user_exists(mongo, username):
+        user_found = await user_exists(mongo, username)
+        if user_found:
             query = _search_posts_query(username, "")
         else:
             query = _search_posts_query("", username)
     else:
         query = _search_posts_query(username, content)
 
-    return await _get_entities(mongo, DB_POSTS, query, page)
+    page_count, results = await _get_entities(mongo, DB_POSTS, query, page)
+
+    return page_count, results, user_found
 
 
 def _normalize_username(username: str):

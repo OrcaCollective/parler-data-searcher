@@ -75,9 +75,13 @@ async def posts():
     if not username and not search_content:
         return await render_template("posts.html")
 
-    page_count, results = await api.search_posts(
+    page_count, results, user_found = await api.search_posts(
         mongo, username, search_content, page, behavior
     )
+
+    if not user_found and behavior == SearchBehavior.USERNAME_AGGRESSIVE:
+        search_content = username
+        username = ""
 
     return await render_template(
         "posts.html",
