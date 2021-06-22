@@ -8,7 +8,9 @@ from constants import (
     USERNAME_QUERY_PARAM,
     SEARCH_CONTENT_QUERY_PARAM,
     POSTS_PATH_COMPONENT,
+    SEARCH_BEHAVIOR_QUERY_PARAM,
 )
+from enums import SearchBehavior
 
 SEARCH_LINK_TEMPLATE = '<a href="{url}">{text}</a>'
 
@@ -31,19 +33,27 @@ def with_search_links(s: str):
 
 
 def _create_search_link(m: Match):
-    if m.group(0).startswith("@"):
+    matched_word = m.group(0)
+
+    if matched_word.startswith("@"):
         # create username link
         return SEARCH_LINK_TEMPLATE.format(
-            url=url_for(POSTS_PATH_COMPONENT, **{USERNAME_QUERY_PARAM: m.group(0)}),
-            text=m.group(0),
+            url=url_for(
+                POSTS_PATH_COMPONENT,
+                **{
+                    USERNAME_QUERY_PARAM: matched_word,
+                    SEARCH_BEHAVIOR_QUERY_PARAM: SearchBehavior.USERNAME_AGGRESSIVE.value,
+                }
+            ),
+            text=matched_word,
         )
     else:
         # create hashtag link
         return SEARCH_LINK_TEMPLATE.format(
             url=url_for(
-                POSTS_PATH_COMPONENT, **{SEARCH_CONTENT_QUERY_PARAM: m.group(0)}
+                POSTS_PATH_COMPONENT, **{SEARCH_CONTENT_QUERY_PARAM: matched_word}
             ),
-            text=m.group(0),
+            text=matched_word,
         )
 
 

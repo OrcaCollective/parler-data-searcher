@@ -12,8 +12,10 @@ from constants import (
     SEARCH_CONTENT_QUERY_PARAM,
     USERS_PATH_COMPONENT,
     PAGE_QUERY_PARAM,
+    SEARCH_BEHAVIOR_QUERY_PARAM,
 )
 import templatefilters
+from enums import SearchBehavior
 
 load_dotenv()
 
@@ -58,6 +60,13 @@ async def posts():
     username = request.args.get(USERNAME_QUERY_PARAM, "")
     search_content = request.args.get(SEARCH_CONTENT_QUERY_PARAM, "")
     page = request.args.get(PAGE_QUERY_PARAM, 0)
+    behavior = request.args.get(SEARCH_BEHAVIOR_QUERY_PARAM, "")
+
+    try:
+        behavior = SearchBehavior(behavior)
+    except ValueError:
+        behavior = SearchBehavior.NORMAL
+
     try:
         page = int(page)
     except ValueError:
@@ -66,7 +75,9 @@ async def posts():
     if not username and not search_content:
         return await render_template("posts.html")
 
-    page_count, results = await api.search_posts(mongo, username, search_content, page)
+    page_count, results = await api.search_posts(
+        mongo, username, search_content, page, behavior
+    )
 
     return await render_template(
         "posts.html",
