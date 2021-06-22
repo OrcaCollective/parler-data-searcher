@@ -15,4 +15,11 @@ def make_post(
         "comments": comments,
         "media": media,
         "echo": echo,
+        "date": "",
+        "impressions": 0,
+        "image": None,
+        "video": None,
+        "comment_count": len(comments),
+        "echo_count": 0,
+        "upvote_count": 0,
     }
