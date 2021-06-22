@@ -18,6 +18,20 @@ logger = logging.getLogger(__name__)
 PAGE_LIMIT = 20
 
 
+def _get_user_query(username: str) -> dict:
+    formatted_username = _normalize_username(username)
+    return {
+        "$or": [
+            {
+                "name": formatted_username,
+            },
+            {
+                "username": formatted_username,
+            },
+        ],
+    }
+
+
 def _search_users_query(username: str) -> dict:
     search_regex = {
         "$regex": f".*{username}.*",
@@ -39,7 +53,7 @@ def _search_users_query(username: str) -> dict:
 def _search_posts_query(username: str, search_content: str) -> Optional[dict]:
     username_query = {}
     if username:
-        formatted_username = username if username.startswith("@") else f"@{username}"
+        formatted_username = _normalize_username(username)
         username_query = {
             "$or": [
                 {
@@ -134,6 +148,16 @@ async def search_users(
     return await _get_entities(mongo, DB_USERS, _search_users_query(username), page)
 
 
+async def user_exists(mongo: Motor, username) -> bool:
+    try:
+        query = _get_user_query(username)
+        exists = await mongo.db[DB_USERS].find_one(query)
+        return bool(exists)
+    except OperationFailure as err:
+        logger.error(f"Failure while checking if user exists: {err}", err)
+        return False
+
+
 async def search_posts(
     mongo: Motor, username: str, content: str, page: int, behavior: SearchBehavior
 ) -> Tuple[int, list[Post]]:
@@ -147,44 +171,17 @@ async def search_posts(
     :param behavior: If SearchBehavior.USERNAME_AGGRESSIVE, content will be ignored.
     :return:
     """
-    query = None
-
     # first, sniff what query we need to use
     if behavior == SearchBehavior.USERNAME_AGGRESSIVE:
-        # if USERNAME_AGGRESSIVE, preferentially search for posts by a user,
-        # or, if nothing can be found, search for any content containing that username.
-        username_query = _search_posts_query(username, "")
-        content_query = _search_posts_query("", username)
-
-        try:
-            username_present_f = mongo.db[DB_POSTS].find_one(username_query)
-            content_present_f = mongo.db[DB_POSTS].find_one(content_query)
-
-            await asyncio.wait(
-                {username_present_f, content_present_f},
-                return_when=asyncio.FIRST_EXCEPTION,
-            )
-
-            username_present = await username_present_f
-            content_present = await content_present_f
-        except OperationFailure as err:
-            logger.error(
-                f"Failed to get pre-flight post counts when searching aggressively: {err}",
-                err,
-            )
-            raise
-
-        if username_present:
-            query = username_query
-        elif content_present:
-            query = content_query
+        if await user_exists(mongo, username):
+            query = _search_posts_query(username, "")
         else:
-            query = None
+            query = _search_posts_query("", username)
     else:
         query = _search_posts_query(username, content)
 
-    # if we have a query, execute it
-    if query is not None:
-        return await _get_entities(mongo, DB_POSTS, query, page)
-    else:
-        return 0, []
+    return await _get_entities(mongo, DB_POSTS, query, page)
+
+
+def _normalize_username(username: str):
+    return username if username.startswith("@") else f"@{username}"
