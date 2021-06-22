@@ -3,8 +3,8 @@ from unittest.mock import patch
 
 from app import app
 
-from tests.fixtures.posts import make_post
-from tests.fixtures.users import make_user
+from tests.utils.posts import make_post
+from tests.utils.users import make_user
 
 
 @pytest.mark.asyncio
