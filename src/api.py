@@ -139,15 +139,22 @@ async def search_posts(
         username_query = _search_posts_query(username, "")
         content_query = _search_posts_query("", username)
 
-        count_username_f = mongo.db[DB_POSTS].count_documents(username_query)
-        count_content_f = mongo.db[DB_POSTS].count_documents(content_query)
+        try:
+            count_username_f = mongo.db[DB_POSTS].count_documents(username_query)
+            count_content_f = mongo.db[DB_POSTS].count_documents(content_query)
 
-        await asyncio.wait(
-            {count_username_f, count_content_f}, return_when=asyncio.FIRST_EXCEPTION
-        )
+            await asyncio.wait(
+                {count_username_f, count_content_f}, return_when=asyncio.FIRST_EXCEPTION
+            )
 
-        count_username = await count_username_f
-        count_content = await count_content_f
+            count_username = await count_username_f
+            count_content = await count_content_f
+        except OperationFailure as err:
+            logger.error(
+                f"Failed to get pre-flight post counts when searching aggressively: {err}",
+                err,
+            )
+            raise
 
         if count_username > 0:
             query = username_query
@@ -163,31 +170,37 @@ async def search_posts(
 
     # if we have a query, execute it
     if query is not None:
-        if count < 0:
-            count_f = mongo.db[DB_POSTS].count_documents(query)
-        else:
-            # in the event we already have the count,
-            # generate a placeholder task that returns it
-            async def dummy() -> int:
-                return count
+        try:
+            if count < 0:
+                count_f = mongo.db[DB_POSTS].count_documents(query)
+            else:
+                # in the event we already have the count,
+                # generate a placeholder task that returns it
+                async def dummy() -> int:
+                    return count
 
-            count_f = asyncio.create_task(dummy())
+                count_f = asyncio.create_task(dummy())
 
-        skip = page * PAGE_LIMIT
+            skip = page * PAGE_LIMIT
 
-        entities_f = (
-            mongo.db[DB_POSTS]
-            .find(query)
-            .skip(skip)
-            .limit(PAGE_LIMIT)
-            .to_list(length=PAGE_LIMIT)
-        )
+            entities_f = (
+                mongo.db[DB_POSTS]
+                .find(query)
+                .skip(skip)
+                .limit(PAGE_LIMIT)
+                .to_list(length=PAGE_LIMIT)
+            )
 
-        await asyncio.wait({count_f, entities_f}, return_when=asyncio.FIRST_EXCEPTION)
+            await asyncio.wait(
+                {count_f, entities_f}, return_when=asyncio.FIRST_EXCEPTION
+            )
 
-        page_count: int = floor(await count_f / PAGE_LIMIT) + 1
-        entities: list[Post] = await entities_f
+            page_count: int = floor(await count_f / PAGE_LIMIT) + 1
+            entities: list[Post] = await entities_f
 
-        return page_count, entities
+            return page_count, entities
+        except OperationFailure as err:
+            logger.error(f"Failure retrieving {DB_POSTS}: {err}", err)
+            raise
     else:
         return 0, []
