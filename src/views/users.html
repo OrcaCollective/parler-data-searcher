@@ -22,7 +22,7 @@
         {% for user in users %}
             <ul>
                 <li><strong>Name:</strong> {{ user.name }} </li>
-                <li><strong>Username:</strong> <a href="{{ url_for('posts', username=user.username) }}">{{ user.username }}</a></li>
+                <li><strong>Username:</strong> {{ user.username | with_search_links }} </li>
             </ul>
         {% endfor %}
         {% if users == [] %}

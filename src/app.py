@@ -6,6 +6,14 @@ from dotenv import load_dotenv
 from urllib.parse import urlencode
 
 import api
+from constants import (
+    POSTS_PATH_COMPONENT,
+    USERNAME_QUERY_PARAM,
+    SEARCH_CONTENT_QUERY_PARAM,
+    USERS_PATH_COMPONENT,
+    PAGE_QUERY_PARAM,
+)
+import templatefilters
 
 load_dotenv()
 
@@ -15,6 +23,8 @@ MONGO_ENDPOINT = os.environ.get("MONGO_ENDPOINT")
 MONGO_PORT = os.environ.get("MONGO_PORT")
 
 app = Quart(__name__, static_folder="public", template_folder="views")
+
+templatefilters.register_filters(app)
 
 mongo = Motor(
     app, uri=f"mongodb://{MONGO_USER}:{MONGO_PASS}@{MONGO_ENDPOINT}:{MONGO_PORT}/parler"
@@ -43,11 +53,11 @@ async def home():
     return await render_template("users.html")
 
 
-@app.route("/posts", strict_slashes=False)
+@app.route(f"/{POSTS_PATH_COMPONENT}", strict_slashes=False)
 async def posts():
-    username = request.args.get("username", "")
-    search_content = request.args.get("search_content", "")
-    page = request.args.get("page", 0)
+    username = request.args.get(USERNAME_QUERY_PARAM, "")
+    search_content = request.args.get(SEARCH_CONTENT_QUERY_PARAM, "")
+    page = request.args.get(PAGE_QUERY_PARAM, 0)
     try:
         page = int(page)
     except ValueError:
@@ -65,14 +75,14 @@ async def posts():
         username=username,
         search_content=search_content,
         page_count=page_count,
-        search_type="posts",
+        search_type=POSTS_PATH_COMPONENT,
     )
 
 
-@app.route("/users", strict_slashes=False)
+@app.route(f"/{USERS_PATH_COMPONENT}", strict_slashes=False)
 async def users():
-    username = request.args.get("username")
-    page = request.args.get("page", 0)
+    username = request.args.get(USERNAME_QUERY_PARAM)
+    page = request.args.get(PAGE_QUERY_PARAM, 0)
     try:
         page = int(page)
     except ValueError:
@@ -89,7 +99,7 @@ async def users():
         page=page,
         username=username,
         page_count=page_count,
-        search_type="users",
+        search_type=USERS_PATH_COMPONENT,
     )
 
 
