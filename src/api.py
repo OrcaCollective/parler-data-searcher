@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from math import floor
-from typing import Optional, Tuple
+from typing import Optional, Tuple, TypeVar
 
 from pymongo.errors import OperationFailure
 from quart_motor import Motor
@@ -9,6 +9,9 @@ from quart_motor import Motor
 from api_types import User, Post
 from constants import DB_USERS, DB_POSTS
 from enums import SearchBehavior
+
+
+T = TypeVar("T", User, Post)
 
 logger = logging.getLogger(__name__)
 
@@ -87,32 +90,48 @@ def _search_posts_query(username: str, search_content: str) -> Optional[dict]:
     return {"$and": [username_query, content_query]}
 
 
-async def search_users(
-    mongo: Motor, username: str, page: int
-) -> Tuple[int, list[User]]:
+async def _get_entities(
+    mongo: Motor,
+    collection: str,
+    query: Optional[dict],
+    page: int,
+) -> Tuple[int, list[T]]:
+    if query is None:
+        return 0, []
+
     skip = page * PAGE_LIMIT
-    query = _search_users_query(username)
 
     try:
-        count_f = mongo.db[DB_USERS].count_documents(query)
-        entities_f = (
-            mongo.db[DB_USERS]
+        total_count_f = mongo.db[collection].count_documents(query)
+        results_f = (
+            mongo.db[collection]
             .find(query)
             .skip(skip)
             .limit(PAGE_LIMIT)
             .to_list(length=PAGE_LIMIT)
         )
-
-        await asyncio.wait({count_f, entities_f}, return_when=asyncio.FIRST_EXCEPTION)
-
-        entities: list[User] = await entities_f
-        page_count: int = floor(await count_f / PAGE_LIMIT) + 1
-
+        await asyncio.wait(
+            {total_count_f, results_f}, return_when=asyncio.FIRST_EXCEPTION
+        )
+        # indiscriminately await each future, if one failed then the exception will raise as expected
+        total_count: int = await total_count_f
+        results: list[T] = await results_f
     except OperationFailure as err:
-        logger.error(f"Failure retrieving {DB_USERS}: {err}", err)
-        raise
+        logger.error(f"Failure retrieving {collection}: {err}")
 
-    return page_count, entities
+        # probably an invalid regex, just return nothing
+        total_count = 0
+        results = []
+
+    page_count = floor(total_count / PAGE_LIMIT) + 1
+
+    return page_count, results
+
+
+async def search_users(
+    mongo: Motor, username: str, page: int
+) -> Tuple[int, list[User]]:
+    return await _get_entities(mongo, DB_USERS, _search_users_query(username), page)
 
 
 async def search_posts(
@@ -129,10 +148,8 @@ async def search_posts(
     :return:
     """
     query = None
-    count = -1
 
-    # first, generate the query and, depending on the indicated search behavior,
-    # perhaps the total document count as well
+    # first, sniff what query we need to use
     if behavior == SearchBehavior.USERNAME_AGGRESSIVE:
         # if USERNAME_AGGRESSIVE, preferentially search for posts by a user,
         # or, if nothing can be found, search for any content containing that username.
@@ -140,15 +157,16 @@ async def search_posts(
         content_query = _search_posts_query("", username)
 
         try:
-            count_username_f = mongo.db[DB_POSTS].count_documents(username_query)
-            count_content_f = mongo.db[DB_POSTS].count_documents(content_query)
+            username_present_f = mongo.db[DB_POSTS].find_one(username_query)
+            content_present_f = mongo.db[DB_POSTS].find_one(content_query)
 
             await asyncio.wait(
-                {count_username_f, count_content_f}, return_when=asyncio.FIRST_EXCEPTION
+                {username_present_f, content_present_f},
+                return_when=asyncio.FIRST_EXCEPTION,
             )
 
-            count_username = await count_username_f
-            count_content = await count_content_f
+            username_present = await username_present_f
+            content_present = await content_present_f
         except OperationFailure as err:
             logger.error(
                 f"Failed to get pre-flight post counts when searching aggressively: {err}",
@@ -156,51 +174,17 @@ async def search_posts(
             )
             raise
 
-        if count_username > 0:
+        if username_present:
             query = username_query
-            count = count_username
-        elif count_content > 0:
+        elif content_present:
             query = content_query
-            count = count_content
         else:
             query = None
-            count = 0
     else:
         query = _search_posts_query(username, content)
 
     # if we have a query, execute it
     if query is not None:
-        try:
-            if count < 0:
-                count_f = mongo.db[DB_POSTS].count_documents(query)
-            else:
-                # in the event we already have the count,
-                # generate a placeholder task that returns it
-                async def dummy() -> int:
-                    return count
-
-                count_f = asyncio.create_task(dummy())
-
-            skip = page * PAGE_LIMIT
-
-            entities_f = (
-                mongo.db[DB_POSTS]
-                .find(query)
-                .skip(skip)
-                .limit(PAGE_LIMIT)
-                .to_list(length=PAGE_LIMIT)
-            )
-
-            await asyncio.wait(
-                {count_f, entities_f}, return_when=asyncio.FIRST_EXCEPTION
-            )
-
-            page_count: int = floor(await count_f / PAGE_LIMIT) + 1
-            entities: list[Post] = await entities_f
-
-            return page_count, entities
-        except OperationFailure as err:
-            logger.error(f"Failure retrieving {DB_POSTS}: {err}", err)
-            raise
+        return await _get_entities(mongo, DB_POSTS, query, page)
     else:
         return 0, []
