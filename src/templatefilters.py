@@ -1,7 +1,7 @@
 import re
 from re import Match
 
-from jinja2 import Markup
+from markupsafe import Markup
 from quart import url_for, Quart
 
 from constants import (
