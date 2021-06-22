@@ -1,9 +1,9 @@
-from tests.fixtures.posts import make_post
 import pytest
 from unittest.mock import patch
 
 from app import app
 
+from tests.fixtures.posts import make_post
 from tests.fixtures.users import make_user
 
 
