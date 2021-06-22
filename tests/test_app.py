@@ -42,7 +42,7 @@ async def test_users_route_retrieves_no_users(mock_search_users):
 @pytest.mark.asyncio
 @patch("api.search_posts")
 async def test_posts_route_retrieves_no_posts(mock_search_posts):
-    mock_search_posts.return_value = (0, [])
+    mock_search_posts.return_value = (0, [], False)
     client = app.test_client()
     response = await client.get("/posts?username=test-username")
     assert response.status_code == 200
@@ -78,6 +78,7 @@ async def test_posts_route_one_page_posts(mock_search_posts):
             make_post(f"test-username-{i}", f"test-post-text-{i}", [], None, None)
             for i in range(20)
         ],
+        True,
     )
     client = app.test_client()
     response = await client.get("/posts?username=test-username")
