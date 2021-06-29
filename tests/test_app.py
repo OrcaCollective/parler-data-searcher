@@ -55,7 +55,7 @@ async def test_posts_route_retrieves_no_posts(mock_search_posts):
 async def test_users_route_one_page_users(mock_search_users):
     mock_search_users.return_value = (
         1,
-        [make_user(f"test-username-{i}", f"test-name-{i}") for i in range(20)],
+        [make_user(f"@test_username_{i}", f"test-name-{i}") for i in range(20)],
     )
     client = app.test_client()
     response = await client.get("/users?username=test-username")
@@ -63,7 +63,7 @@ async def test_users_route_one_page_users(mock_search_users):
     data = str(await response.data)
     for i in range(20):
         assert (
-            f'Username:</strong> <a href="/posts?username=test-username-{i}">test-username-{i}</a>'
+            f'Username:</strong> <a href="/posts?username=%40test_username_{i}">@test_username_{i}</a>'
             in data
         )
         assert f"Name:</strong> test-name-{i}" in data
