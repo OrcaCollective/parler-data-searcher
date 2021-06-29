@@ -1,2 +1,2 @@
 #! /bin/sh
-hypercorn --bind=0.0.0.0:5000 app:app
+hypercorn --bind=0.0.0.0:5000 src/app:app
