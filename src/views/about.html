@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>About the data</h2>
+<p>
+	This tool lets users search the Parler text post data that was scraped and published by <a href="https://ddosecrets.com/wiki/Parler#Text_posts" target="_blank" rel="noopener noreferrer">Distributed Denial of Secrets</a>. This dataset includes about 1.6 million posts made on Parler around the time of J6.
+</p>
+
+<h2>How to use this website</h2>
+<p>
+	If searching for a specific user, use the <a href="{{ url_for('users') }}">users search</a> to loosly match a part or the full username or name of a user.
+</p>
+
+<p>
+	Once you've found the user you're looking for, click the username to open a list of posts by that user.
+</p>
+
+<p>
+	To do search for post content, use the <a href="{{ url_for('posts') }}">posts search</a> and fill in the content field. This will partially match any of the content fields available in the dataset.
+</p>
+
+<p>
+	<strong>Note:</strong> The posts search is much slower than the users search. This is expected! There is a lot trash for our little website to sift through on your behalf, so just have patience and eventually the search will come back 💕
+</p>
+
+<p>
+	<strong>Additional note:</strong> Currently any links to the Parler API are dead. We're not sure what's going on there but we're monitoring the situation and if we can restore those links we will. Otherwise just know that they're broken.
+</p>
+
+<h2>Disclaimer</h2>
+<p>
+	Please beware before using this website that users on Parler post extremely vile shit. Tech Bloc is not responsible for this data or how you use it or its contents. Please be careful when searching this information and respect your own limits.
+</p>
+{% endblock %}
