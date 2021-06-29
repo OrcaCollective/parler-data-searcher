@@ -53,6 +53,11 @@ async def home():
     return await render_template("users.html")
 
 
+@app.route("/about", strict_slashes=False)
+async def about():
+    return await render_template("about.html")
+
+
 @app.route(f"/{POSTS_PATH_COMPONENT}", strict_slashes=False)
 async def posts():
     username = request.args.get(USERNAME_QUERY_PARAM, "")

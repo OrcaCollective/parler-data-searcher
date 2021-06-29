@@ -4,6 +4,6 @@ services:
   parler-search:
     build: .
     ports:
-      - 5000:5000
+      - 5005:5000
     env_file:
       - .env
