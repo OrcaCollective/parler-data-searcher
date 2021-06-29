@@ -11,5 +11,6 @@ WORKDIR /app
 RUN pip install -r requirements.txt
 
 COPY src/ /app
+COPY bin/ /app/bin
 
-CMD ["./bin/run.sh"]
+CMD ["hypercorn", "--bind=0.0.0.0:5000", "app:app"]
