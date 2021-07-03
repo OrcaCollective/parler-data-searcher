@@ -76,7 +76,7 @@ async def posts():
 
     content_regex = None
     if search_content:
-        content_regex = re.compile(search_content, re.IGNORECASE)
+        content_regex = re.compile(f"({search_content})", re.IGNORECASE)
 
     return await render_template(
         "posts.html",

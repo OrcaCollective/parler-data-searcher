@@ -12,7 +12,7 @@ from constants import (
 )
 
 SEARCH_LINK_TEMPLATE = '<a href="{url}">{text}</a>'
-HIGHLIGHT_SEARCHED_TERM_TEMPLATE = "<mark>{text}</mark>"
+HIGHLIGHT_SEARCHED_TERM_TEMPLATE = "<mark>\\1</mark>"
 
 USERNAME_AND_HASHTAG_REGEX = re.compile(r"[@|#]\w+")
 
@@ -53,15 +53,9 @@ def with_highlighted_term(s: str, content_regex: Optional[re.Pattern[Any]]):
     if not s or content_regex is None:
         return s
 
-    with_highlighted_terms = content_regex.sub(_create_highlighted_terms, s)
+    with_highlighted_terms = re.sub(content_regex, HIGHLIGHT_SEARCHED_TERM_TEMPLATE, s)
 
     return Markup(with_highlighted_terms)
-
-
-def _create_highlighted_terms(m: Match):
-    return HIGHLIGHT_SEARCHED_TERM_TEMPLATE.format(
-        text=m.group(0),
-    )
 
 
 def register_filters(app: Quart):
