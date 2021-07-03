@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import re
 from quart import Quart, render_template, request, redirect
 from quart_motor import Motor
 import os
@@ -73,6 +74,10 @@ async def posts():
 
     page_count, results = await api.search_posts(mongo, username, search_content, page)
 
+    content_regex = None
+    if search_content:
+        content_regex = re.compile(search_content, re.IGNORECASE)
+
     return await render_template(
         "posts.html",
         posts=results,
@@ -81,6 +86,7 @@ async def posts():
         search_content=search_content,
         page_count=page_count,
         search_type=POSTS_PATH_COMPONENT,
+        content_regex=content_regex,
     )
 
 

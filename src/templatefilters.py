@@ -1,5 +1,6 @@
 import re
 from re import Match
+from typing import Any
 
 from jinja2 import Markup
 from quart import url_for, Quart
@@ -11,6 +12,7 @@ from constants import (
 )
 
 SEARCH_LINK_TEMPLATE = '<a href="{url}">{text}</a>'
+HIGHLIGHT_SEARCHED_TERM_TEMPLATE = "<mark>{text}</mark>"
 
 USERNAME_AND_HASHTAG_REGEX = re.compile(r"[@|#]\w+")
 
@@ -47,6 +49,21 @@ def _create_search_link(m: Match):
         )
 
 
+def with_highlighted_term(s: str, content_regex: re.Pattern[Any]):
+    if not s:
+        return s
+
+    with_highlighted_terms = content_regex.sub(_create_highlighted_terms, s)
+
+    return Markup(with_highlighted_terms)
+
+
+def _create_highlighted_terms(m: Match):
+    return HIGHLIGHT_SEARCHED_TERM_TEMPLATE.format(
+        text=m.group(0),
+    )
+
+
 def register_filters(app: Quart):
     """
     Register all filters with the main app.
@@ -55,3 +72,4 @@ def register_filters(app: Quart):
     :return:
     """
     app.add_template_filter(with_search_links)
+    app.add_template_filter(with_highlighted_term)

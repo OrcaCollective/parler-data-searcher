@@ -1,6 +1,6 @@
 {% for comment in comments %}
     <ul>
         <li><strong>Username:</strong> {{ comment.username | with_search_links }}</li>
-        <li><strong>Content:</strong> {{ comment.text | with_search_links }}</li>
+        <li><strong>Content:</strong> {{ comment.text | with_search_links | with_highlighted_term(content_regex) }}</li>
     </ul>
 {% endfor %}
