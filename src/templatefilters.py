@@ -1,6 +1,6 @@
 import re
 from re import Match
-from typing import Any
+from typing import Any, Optional
 
 from jinja2 import Markup
 from quart import url_for, Quart
@@ -49,8 +49,8 @@ def _create_search_link(m: Match):
         )
 
 
-def with_highlighted_term(s: str, content_regex: re.Pattern[Any]):
-    if not s:
+def with_highlighted_term(s: str, content_regex: Optional[re.Pattern[Any]]):
+    if not s or content_regex is None:
         return s
 
     with_highlighted_terms = content_regex.sub(_create_highlighted_terms, s)
