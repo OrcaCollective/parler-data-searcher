@@ -1,7 +1,7 @@
 <ul class="{{ wrapper_class }}">
-    <li><strong>Username:</strong> {{ post.username | with_search_links }}</li>
+    <li><strong>Username:</strong> {{ post.username | with_search_links | safe }}</li>
     {% if post.text %}
-        <li><strong>Content:</strong> {{ post.text | with_search_links }}</li>
+        <li><strong>Content:</strong> {{ post.text | with_search_links | with_highlighted_term(content_regex) | safe }}</li>
     {% endif %}
     {% if post.echo %}
         {% with post=post.echo, wrapper_class="echo-container" %}

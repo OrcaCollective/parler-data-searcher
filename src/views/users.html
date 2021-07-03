@@ -22,7 +22,7 @@
         {% for user in users %}
             <ul>
                 <li><strong>Name:</strong> {{ user.name }} </li>
-                <li><strong>Username:</strong> {{ user.username | with_search_links }} </li>
+                <li><strong>Username:</strong> {{ user.username | with_search_links | safe }} </li>
             </ul>
         {% endfor %}
         {% if users == [] %}

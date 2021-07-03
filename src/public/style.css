@@ -120,3 +120,7 @@ button:active {
 .form-header {
   margin-top: 0;
 }
+
+mark {
+  background-color: #f7cf07;
+}
