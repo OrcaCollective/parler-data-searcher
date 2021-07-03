@@ -2,7 +2,6 @@ import re
 from re import Match
 from typing import Any, Optional
 
-from jinja2 import Markup
 from quart import url_for, Quart
 
 from constants import (
@@ -29,7 +28,7 @@ def with_search_links(s: str):
 
     with_links = USERNAME_AND_HASHTAG_REGEX.sub(_create_search_link, s)
 
-    return Markup(with_links)
+    return with_links
 
 
 def _create_search_link(m: Match):
@@ -55,7 +54,7 @@ def with_highlighted_term(s: str, content_regex: Optional[re.Pattern[Any]]):
 
     with_highlighted_terms = re.sub(content_regex, HIGHLIGHT_SEARCHED_TERM_TEMPLATE, s)
 
-    return Markup(with_highlighted_terms)
+    return with_highlighted_terms
 
 
 def register_filters(app: Quart):
