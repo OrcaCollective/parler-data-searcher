@@ -17,6 +17,19 @@
     </label>
 
     <label>
+        Include username mentions:
+        <input
+            class="entity-input"
+            type="checkbox"
+            name="mentions"
+            {% if mentions -%}
+            checked="checked"
+            {% endif -%}
+            value="true"
+        />
+    </label>
+
+    <label>
         Content:
         <input
             class="entity-input"
@@ -26,6 +39,33 @@
             value="{{ search_content }}"
         />
     </label>
+
+    <label>
+        Match all fields:
+        <input
+            class="entity-input"
+            type="radio"
+            name="behavior"
+            value="match_all"
+            {% if behavior == "match_all" -%}
+            checked="checked"
+            {% endif -%}
+        />
+    </label>
+
+    <label>
+        Match any field:
+        <input
+            class="entity-input"
+            type="radio"
+            name="behavior"
+            value="match_any"
+            {% if behavior == "match_any" -%}
+            checked="checked"
+            {% endif -%}
+        />
+    </label>
+
 {% endblock %}
 
 {% block results %}

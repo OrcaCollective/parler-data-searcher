@@ -61,7 +61,7 @@ async def test_users_route_one_page_users(mock_search_users, app):
     data = str(await response.data)
     for i in range(20):
         assert (
-            f'Username:</strong> <a href="/posts?username=%40test_username_{i}">@test_username_{i}</a>'
+            f'Username:</strong> <a href="/posts?username=%40test_username_{i}&mentions=true">@test_username_{i}</a>'
             in data
         )
         assert f"Name:</strong> test-name-{i}" in data

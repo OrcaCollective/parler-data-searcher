@@ -1,21 +1,44 @@
-from quart_motor import Motor
-from typing import Optional, Tuple, TypeVar
-from math import floor
-from pymongo.errors import OperationFailure
-
-import logging
 import asyncio
+import logging
+from math import floor
+from typing import Optional, Tuple, TypeVar
+
+from pymongo.errors import OperationFailure
+from quart_motor import Motor
 
 from api_types import User, Post
+from constants import DB_USERS, DB_POSTS
+from enums import SearchBehavior
 
-T = TypeVar("T", User, Post)
+
+T = TypeVar("T", Post, User)
 
 logger = logging.getLogger(__name__)
 
 PAGE_LIMIT = 20
 
 
-def _search_users_query(username: str) -> dict:
+def _normalize_username(username: str):
+    return username if username.startswith("@") else f"@{username}"
+
+
+def _exact_username_query(username: str) -> dict:
+    formatted_username = _normalize_username(username)
+    return {
+        "$or": [
+            {
+                "name": formatted_username,
+            },
+            {
+                "username": formatted_username,
+            },
+        ],
+    }
+
+
+def _username_contains_query(username: str) -> dict:
+    # this username is not normalized because the search string can appear
+    # anywhere inside a match, not just at the beginning
     search_regex = {
         "$regex": f".*{username}.*",
         "$options": "i",
@@ -33,58 +56,101 @@ def _search_users_query(username: str) -> dict:
     }
 
 
-def _search_posts_query(username: str, search_content: str) -> Optional[dict]:
+def _posts_by_user_query(username: str) -> Optional[dict]:
     username_query = {}
-    if username:
-        formatted_username = username if username.startswith("@") else f"@{username}"
-        username_query = {
-            "$or": [
-                {
-                    "username": formatted_username,
-                },
-                {
-                    "comments.username": formatted_username,
-                },
-                {
-                    "echo.username": formatted_username,
-                },
-            ],
-        }
-
-    content_query = {}
-    if search_content:
-        content_regex = {
-            "$regex": f".*{search_content}.*",
-            "$options": "i",
-        }
-        content_query = {
-            "$or": [
-                {
-                    "text": content_regex,
-                },
-                {
-                    "media.title": content_regex,
-                },
-                {
-                    "comment.text": content_regex,
-                },
-                {
-                    "echo.text": content_regex,
-                },
-            ],
-        }
-
-    # avoid an empty $or clause which will cause an error
-    if not username_query and not content_query:
+    if not username:  # avoid an empty $or clause which will cause an error
         return None
 
-    if username_query and not content_query:
-        return username_query
+    formatted_username = _normalize_username(username)
+    username_query = {
+        "$or": [
+            {
+                "username": formatted_username,
+            },
+            {
+                "comments.username": formatted_username,
+            },
+            {
+                "echo.username": formatted_username,
+            },
+        ],
+    }
 
-    if content_query and not username_query:
-        return content_query
+    return username_query
 
-    return {"$and": [username_query, content_query]}
+
+def _posts_by_content_query(search_content: str) -> Optional[dict]:
+    content_query = {}
+    if not search_content:
+        return None
+
+    content_regex = {
+        "$regex": f".*{search_content}.*",
+        "$options": "i",
+    }
+    content_query = {
+        "$or": [
+            {
+                "text": content_regex,
+            },
+            {
+                "media.title": content_regex,
+            },
+            {
+                "comment.text": content_regex,
+            },
+            {
+                "echo.text": content_regex,
+            },
+        ],
+    }
+
+    return content_query
+
+
+def _gather_query_parts(*parts: Optional[dict]) -> Optional[list]:
+    query_parts = [part for part in parts if part is not None]
+    if len(query_parts) == 0:
+        return None
+    return query_parts
+
+
+def _standard_query_logic(
+    query_parts: Optional[list], behavior: SearchBehavior
+) -> Optional[dict]:
+    if query_parts is None:
+        return None
+    elif len(query_parts) == 1:
+        query = query_parts[0]
+    elif behavior == SearchBehavior.MATCH_ANY:
+        query = {"$or": query_parts}
+    elif behavior == SearchBehavior.MATCH_ALL:
+        query = {"$and": query_parts}
+    return query
+
+
+def _search_posts_query(
+    username: str, content: str, behavior: SearchBehavior
+) -> Optional[dict]:
+    query_parts = _gather_query_parts(
+        _posts_by_user_query(username), _posts_by_content_query(content)
+    )
+    return _standard_query_logic(query_parts, behavior)
+
+
+def _search_posts_with_mentions_query(
+    username: str, content: str, behavior: SearchBehavior
+) -> Optional[dict]:
+    username_query = _posts_by_user_query(username)
+    mention_query = _posts_by_content_query(username)
+    content_query = _posts_by_content_query(content)
+    if behavior == SearchBehavior.MATCH_ALL:
+        mention_query_parts = _gather_query_parts(username_query, mention_query)
+        subquery = _standard_query_logic(mention_query_parts, SearchBehavior.MATCH_ANY)
+        query_parts = _gather_query_parts(content_query, subquery)
+    else:
+        query_parts = _gather_query_parts(username_query, mention_query, content_query)
+    return _standard_query_logic(query_parts, behavior)
 
 
 async def _get_entities(
@@ -110,11 +176,11 @@ async def _get_entities(
         await asyncio.wait(
             {total_count_f, results_f}, return_when=asyncio.FIRST_EXCEPTION
         )
-        # indiscriminantly await each future, if one failed then the exception will raise as expected
+        # indiscriminately await each future, if one failed then the exception will raise as expected
         total_count: int = await total_count_f
         results: list[T] = await results_f
     except OperationFailure as err:
-        logger.error(f"Failure retrieving {collection}: {err}")
+        logger.error(f"Failure retrieving {collection}: {err}", err)
 
         # probably an invalid regex, just return nothing
         total_count = 0
@@ -128,12 +194,47 @@ async def _get_entities(
 async def search_users(
     mongo: Motor, username: str, page: int
 ) -> Tuple[int, list[User]]:
-    return await _get_entities(mongo, "users", _search_users_query(username), page)
+    return await _get_entities(
+        mongo, DB_USERS, _username_contains_query(username), page
+    )
+
+
+async def user_exists(mongo: Motor, username) -> bool:
+    try:
+        query = _exact_username_query(username)
+        record = await mongo.db[DB_USERS].find_one(query)
+        return bool(record)
+    except OperationFailure as err:
+        logger.error(f"Failure while checking if user exists: {err}", err)
+        return False
 
 
 async def search_posts(
-    mongo: Motor, username: str, content: str, page: int
+    mongo: Motor,
+    username: str,
+    content: str,
+    page: int,
+    behavior: SearchBehavior,
+    mentions: bool,
 ) -> Tuple[int, list[Post]]:
-    return await _get_entities(
-        mongo, "posts", _search_posts_query(username, content), page
-    )
+    """
+    Search for posts by username and/or content.
+
+    :param mongo: A MongoDB Motor connection object.
+    :param username: Username to search for.
+    :param content: Content to search for.
+    :param page: Page number of search query results to return.
+    :param behavior: If SearchBehavior.MATCH_ANY, return content matching any
+                     search field, if SearchBehavior.MATCH_ALL, return content
+                     matching all search fields.
+    :param mentions: If mentions is true, also include results where the username
+                     is mentioned in the content field by any other user. Otherwise
+                     just return relevent username matches.
+    :return:
+    """
+    if mentions:
+        query = _search_posts_with_mentions_query(username, content, behavior)
+    else:
+        query = _search_posts_query(username, content, behavior)
+    page_count, results = await _get_entities(mongo, DB_POSTS, query, page)
+    return page_count, results

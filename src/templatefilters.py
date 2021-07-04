@@ -8,12 +8,31 @@ from constants import (
     USERNAME_QUERY_PARAM,
     SEARCH_CONTENT_QUERY_PARAM,
     POSTS_PATH_COMPONENT,
+    INCLUDE_MENTIONS_QUERY_PARAM,
 )
 
 SEARCH_LINK_TEMPLATE = '<a href="{url}">{text}</a>'
 HIGHLIGHT_SEARCHED_TERM_TEMPLATE = "<mark>\\1</mark>"
 
 USERNAME_AND_HASHTAG_REGEX = re.compile(r"[@|#]\w+")
+
+
+def _create_search_link(m: Match):
+    matched_word = m.group(0)
+
+    if matched_word.startswith("@"):
+        params = {
+            USERNAME_QUERY_PARAM: matched_word,
+            INCLUDE_MENTIONS_QUERY_PARAM: "true",
+        }
+    else:
+        params = {SEARCH_CONTENT_QUERY_PARAM: matched_word}
+
+    # create hashtag link
+    return SEARCH_LINK_TEMPLATE.format(
+        url=url_for(POSTS_PATH_COMPONENT, **params),
+        text=matched_word,
+    )
 
 
 def with_search_links(s: str):
@@ -29,23 +48,6 @@ def with_search_links(s: str):
     with_links = USERNAME_AND_HASHTAG_REGEX.sub(_create_search_link, s)
 
     return with_links
-
-
-def _create_search_link(m: Match):
-    if m.group(0).startswith("@"):
-        # create username link
-        return SEARCH_LINK_TEMPLATE.format(
-            url=url_for(POSTS_PATH_COMPONENT, **{USERNAME_QUERY_PARAM: m.group(0)}),
-            text=m.group(0),
-        )
-    else:
-        # create hashtag link
-        return SEARCH_LINK_TEMPLATE.format(
-            url=url_for(
-                POSTS_PATH_COMPONENT, **{SEARCH_CONTENT_QUERY_PARAM: m.group(0)}
-            ),
-            text=m.group(0),
-        )
 
 
 def with_highlighted_term(s: str, content_regex: Optional[re.Pattern[Any]]):
