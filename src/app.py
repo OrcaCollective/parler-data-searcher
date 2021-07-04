@@ -109,9 +109,9 @@ async def posts():
         mongo, username, search_content, page, behavior, mentions
     )
 
-    content_regex = None
+    highlighter_regex = None
     if search_content:
-        content_regex = api.get_content_regex(search_content)
+        highlighter_regex = api.get_highlighter_regex(search_content)
 
     return await render_template(
         "posts.html",
@@ -123,7 +123,7 @@ async def posts():
         mentions=mentions,
         page_count=page_count,
         search_type=POSTS_PATH_COMPONENT,
-        content_regex=content_regex,
+        highlighter_regex=highlighter_regex,
     )
 
 

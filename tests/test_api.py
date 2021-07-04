@@ -174,8 +174,8 @@ def test_escape_escapes_regex_special_chars():
     assert api.escape("+") == r"\+"
 
 
-def test_get_content_regex_escapes_search_content():
-    assert api.get_content_regex("+") == re.compile(r"(\+)", re.IGNORECASE)
+def test_get_highlighter_regex_escapes_search_content():
+    assert api.get_highlighter_regex("+") == re.compile(r"(\+)", re.IGNORECASE)
 
 
 def test_get_match_any_regex():

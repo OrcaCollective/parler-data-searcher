@@ -27,7 +27,7 @@ def escape(s: str) -> str:
     return re.escape(s.strip())
 
 
-def get_content_regex(search_content: str) -> re.Pattern:
+def get_highlighter_regex(search_content: str) -> re.Pattern:
     return re.compile(f"({escape(search_content)})", re.IGNORECASE)
 
 
