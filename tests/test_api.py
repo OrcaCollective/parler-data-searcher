@@ -1,3 +1,5 @@
+import re
+
 import api
 from enums import SearchBehavior
 
@@ -102,3 +104,7 @@ def test_escape_trims_whitespace():
 
 def test_escape_escapes_regex_special_chars():
     assert api.escape("+") == r"\+"
+
+
+def test_get_content_regex_escapes_search_content():
+    assert api.get_content_regex("+") == re.compile(r"(\+)", re.IGNORECASE)

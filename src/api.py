@@ -23,8 +23,12 @@ def _normalize_username(username: str):
     return username if username.startswith("@") else f"@{username}"
 
 
-def escape(s: str):
+def escape(s: str) -> str:
     return re.escape(s.strip())
+
+
+def get_content_regex(search_content: str) -> re.Pattern:
+    return re.compile(f"({escape(search_content)})", re.IGNORECASE)
 
 
 def _username_contains_query(username: str) -> dict:

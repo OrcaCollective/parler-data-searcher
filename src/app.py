@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from datetime import timedelta
-import re
 from quart import Quart, render_template, request, redirect
 from quart_motor import Motor
 from quart_rate_limiter import RateLimiter, rate_limit
@@ -112,7 +111,7 @@ async def posts():
 
     content_regex = None
     if search_content:
-        content_regex = re.compile(f"({api.escape(search_content)})", re.IGNORECASE)
+        content_regex = api.get_content_regex(search_content)
 
     return await render_template(
         "posts.html",
