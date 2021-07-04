@@ -11,6 +11,7 @@ from api_types import Post, User
 from constants import DB_POSTS, DB_USERS
 from enums import SearchBehavior
 
+
 T = TypeVar("T", Post, User)
 
 logger = logging.getLogger(__name__)

@@ -23,6 +23,7 @@ from constants import (
 )
 from enums import SearchBehavior
 
+
 load_dotenv()
 
 QUART_ENV = os.environ.get("QUART_ENV")

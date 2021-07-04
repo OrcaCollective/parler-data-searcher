@@ -11,6 +11,7 @@ from constants import (
     USERNAME_QUERY_PARAM,
 )
 
+
 SEARCH_LINK_TEMPLATE = '<a href="{url}">{text}</a>'
 HIGHLIGHT_SEARCHED_TERM_TEMPLATE = "<mark>\\1</mark>"
 
