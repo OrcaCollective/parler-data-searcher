@@ -31,13 +31,14 @@ def get_content_regex(search_content: str) -> re.Pattern:
     return re.compile(f"({escape(search_content)})", re.IGNORECASE)
 
 
+def get_match_any_regex(s: str) -> re.Pattern:
+    return re.compile(f".*{escape(s)}.*", re.IGNORECASE)
+
+
 def _username_contains_query(username: str) -> dict:
     # this username is not normalized because the search string can appear
     # anywhere inside a match, not just at the beginning
-    search_regex = {
-        "$regex": f".*{escape(username)}.*",
-        "$options": "i",
-    }
+    search_regex = get_match_any_regex(username)
 
     return {
         "$or": [
@@ -75,10 +76,7 @@ def _posts_by_content_query(search_content: str) -> Optional[dict]:
     if not search_content:
         return None
 
-    content_regex = {
-        "$regex": f".*{escape(search_content)}.*",
-        "$options": "i",
-    }
+    content_regex = get_match_any_regex(search_content)
 
     return {
         "$or": [

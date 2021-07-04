@@ -19,15 +19,9 @@ async def test_search_posts_with_mentions(get_entities):
         mongo, username, content, 0, SearchBehavior.MATCH_ALL, mentions=True
     )
 
-    content_regex = {
-        "$regex": f".*{content}.*",
-        "$options": "i",
-    }
+    content_regex = api.get_match_any_regex(content)
 
-    mentions_regex = {
-        "$regex": f".*{username}.*",
-        "$options": "i",
-    }
+    mentions_regex = api.get_match_any_regex(username)
 
     query = {
         "$and": [
@@ -108,10 +102,7 @@ def test_search_post_query_returns_only_username_query():
 
 def test_search_post_query_returns_only_content_query():
     test_content_search = "test content search"
-    content_regex = {
-        "$regex": f".*{api.escape(test_content_search)}.*",
-        "$options": "i",
-    }
+    content_regex = api.get_match_any_regex(test_content_search)
 
     assert api._search_posts_query(
         "", test_content_search, SearchBehavior.MATCH_ALL
@@ -136,10 +127,7 @@ def test_search_post_query_returns_only_content_query():
 def test_search_post_query_returns_full_query():
     test_username = "@test-username"
     test_content_search = "test content search"
-    content_regex = {
-        "$regex": f".*{api.escape(test_content_search)}.*",
-        "$options": "i",
-    }
+    content_regex = api.get_match_any_regex(test_content_search)
 
     assert api._search_posts_query(
         "test-username", test_content_search, SearchBehavior.MATCH_ALL
@@ -188,3 +176,9 @@ def test_escape_escapes_regex_special_chars():
 
 def test_get_content_regex_escapes_search_content():
     assert api.get_content_regex("+") == re.compile(r"(\+)", re.IGNORECASE)
+
+
+def test_get_match_any_regex():
+    assert api.get_match_any_regex("some_string +") == re.compile(
+        r".*some_string\ \+.*", re.IGNORECASE
+    )
