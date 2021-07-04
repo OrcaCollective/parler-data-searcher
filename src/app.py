@@ -37,7 +37,7 @@ mongo = Motor(
 
 redis_store = RedisStore(REDIS_URL)
 
-RateLimiter(app, store=redis_store)
+limiter = RateLimiter(app, store=redis_store)
 
 
 @app.errorhandler(429)
