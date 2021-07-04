@@ -27,7 +27,7 @@ def test_search_post_query_returns_only_username_query():
 def test_search_post_query_returns_only_content_query():
     test_content_search = "test content search"
     content_regex = {
-        "$regex": f".*{test_content_search}.*",
+        "$regex": f".*{api.escape(test_content_search)}.*",
         "$options": "i",
     }
 
@@ -55,7 +55,7 @@ def test_search_post_query_returns_full_query():
     test_username = "@test-username"
     test_content_search = "test content search"
     content_regex = {
-        "$regex": f".*{test_content_search}.*",
+        "$regex": f".*{api.escape(test_content_search)}.*",
         "$options": "i",
     }
 
@@ -94,3 +94,11 @@ def test_search_post_query_returns_full_query():
             },
         ],
     }
+
+
+def test_escape_trims_whitespace():
+    assert api.escape(" ") == ""
+
+
+def test_escape_escapes_regex_special_chars():
+    assert api.escape("+") == r"\+"
