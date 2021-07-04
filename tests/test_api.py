@@ -2,6 +2,7 @@ import pytest
 import re
 from unittest.mock import patch
 from unittest.mock import MagicMock
+from quart_motor import Motor
 
 import api
 from enums import SearchBehavior
@@ -11,7 +12,7 @@ from enums import SearchBehavior
 @patch("api._get_entities")
 async def test_search_posts_with_mentions(get_entities):
     get_entities.return_value = 0, []
-    mongo = MagicMock()
+    mongo = MagicMock(spec=Motor)
     username = "@test_username"
     content = "test_content"
 
