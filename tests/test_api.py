@@ -1,7 +1,87 @@
+import pytest
 import re
+from unittest.mock import patch
+from unittest.mock import MagicMock
 
 import api
 from enums import SearchBehavior
+
+
+@pytest.mark.asyncio
+@patch("api._get_entities")
+async def test_search_posts_with_mentions(get_entities):
+    get_entities.return_value = 0, []
+    mongo = MagicMock()
+    username = "@test_username"
+    content = "test_content"
+
+    await api.search_posts(
+        mongo, username, content, 0, SearchBehavior.MATCH_ALL, mentions=True
+    )
+
+    content_regex = {
+        "$regex": f".*{content}.*",
+        "$options": "i",
+    }
+
+    mentions_regex = {
+        "$regex": f".*{username}.*",
+        "$options": "i",
+    }
+
+    query = {
+        "$and": [
+            {
+                "$or": [
+                    {
+                        "text": content_regex,
+                    },
+                    {
+                        "media.title": content_regex,
+                    },
+                    {
+                        "comment.text": content_regex,
+                    },
+                    {
+                        "echo.text": content_regex,
+                    },
+                ],
+            },
+            {
+                "$or": [
+                    {
+                        "$or": [
+                            {
+                                "username": username,
+                            },
+                            {
+                                "comments.username": username,
+                            },
+                            {"echo.username": username},
+                        ],
+                    },
+                    {
+                        "$or": [
+                            {
+                                "text": mentions_regex,
+                            },
+                            {
+                                "media.title": mentions_regex,
+                            },
+                            {
+                                "comment.text": mentions_regex,
+                            },
+                            {
+                                "echo.text": mentions_regex,
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    }
+
+    get_entities.assert_called_once_with(mongo, "posts", query, 0)
 
 
 def test_search_posts_query_returns_None():
