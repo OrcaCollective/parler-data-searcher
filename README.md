@@ -14,7 +14,7 @@ docker compose up
 2. Activate the virtual environment: `source venv/bin/activate`
 3. Install dependencies: `pip install -r requirements-dev.txt`
 4. Install the pre-commit hook: `pre-commit install`
-5. Create a `.env` file with the following: `MONGO_USER`, `MONGO_PASS`, `MONGO_ENDPOINT`, and `MONGO_PORT`
+5. Copy the `.env.example` to `.env` and fill in the following: `MONGO_USER`, `MONGO_PASS`, `MONGO_ENDPOINT`, `MONGO_PORT`, and `REDIS_URL`
 6. Run the app: `./bin/run_dev.sh`
 7. Make changes and contribute 🙌
 
