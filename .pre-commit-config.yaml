@@ -17,6 +17,11 @@ repos:
           args:
             - --autofix
 
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.9.1
+    hooks:
+      - id: isort
+
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.2
     hooks:

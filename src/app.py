@@ -1,25 +1,26 @@
 #!/usr/bin/env python
+import os
 from datetime import timedelta
-from quart import Quart, render_template, request, redirect
+from urllib.parse import urlencode
+
+from dotenv import load_dotenv
+from quart import Quart, redirect, render_template, request
 from quart_motor import Motor
 from quart_rate_limiter import RateLimiter, rate_limit
 from quart_rate_limiter.redis_store import RedisStore
 from quart_rate_limiter.store import MemoryStore
-import os
-from dotenv import load_dotenv
-from urllib.parse import urlencode
 
 import api
-from constants import (
-    POSTS_PATH_COMPONENT,
-    USERNAME_QUERY_PARAM,
-    SEARCH_CONTENT_QUERY_PARAM,
-    USERS_PATH_COMPONENT,
-    PAGE_QUERY_PARAM,
-    SEARCH_BEHAVIOR_QUERY_PARAM,
-    INCLUDE_MENTIONS_QUERY_PARAM,
-)
 import templatefilters
+from constants import (
+    INCLUDE_MENTIONS_QUERY_PARAM,
+    PAGE_QUERY_PARAM,
+    POSTS_PATH_COMPONENT,
+    SEARCH_BEHAVIOR_QUERY_PARAM,
+    SEARCH_CONTENT_QUERY_PARAM,
+    USERNAME_QUERY_PARAM,
+    USERS_PATH_COMPONENT,
+)
 from enums import SearchBehavior
 
 load_dotenv()

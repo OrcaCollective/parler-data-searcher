@@ -2,13 +2,13 @@ import re
 from re import Match
 from typing import Any, Optional
 
-from quart import url_for, Quart
+from quart import Quart, url_for
 
 from constants import (
-    USERNAME_QUERY_PARAM,
-    SEARCH_CONTENT_QUERY_PARAM,
-    POSTS_PATH_COMPONENT,
     INCLUDE_MENTIONS_QUERY_PARAM,
+    POSTS_PATH_COMPONENT,
+    SEARCH_CONTENT_QUERY_PARAM,
+    USERNAME_QUERY_PARAM,
 )
 
 SEARCH_LINK_TEMPLATE = '<a href="{url}">{text}</a>'
