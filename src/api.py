@@ -1,14 +1,14 @@
 import asyncio
 import logging
+import re
 from math import floor
 from typing import Optional, Tuple, TypeVar
-import re
 
 from pymongo.errors import OperationFailure
 from quart_motor import Motor
 
-from api_types import User, Post
-from constants import DB_USERS, DB_POSTS
+from api_types import Post, User
+from constants import DB_POSTS, DB_USERS
 from enums import SearchBehavior
 
 

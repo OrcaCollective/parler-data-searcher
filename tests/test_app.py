@@ -1,5 +1,6 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 
 from tests.utils.posts import make_post
 from tests.utils.users import make_user
