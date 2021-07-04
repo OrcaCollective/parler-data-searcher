@@ -7,10 +7,14 @@ services:
       - 6379
 
   parler-search:
-    build: .
+    build:
+      context: .
+      dockerfile: ./Dockerfile.local
     ports:
       - 5005:5000
     env_file:
       - .env
     depends_on:
       - redis
+    environment:
+      REDIS_URL: redis://redis
