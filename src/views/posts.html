@@ -47,7 +47,7 @@
             type="radio"
             name="behavior"
             value="match_all"
-            {% if behavior == "match_all" -%}
+            {% if behavior == "match_all" or behavior is undefined -%}
             checked="checked"
             {% endif -%}
         />
