@@ -69,6 +69,24 @@ async def test_users_route_one_page_users(mock_search_users, app):
 
 
 @pytest.mark.asyncio
+@patch("api.search_users")
+async def test_users_route_one_page_users_private_users_skipped_from_linking(
+    mock_search_users, app
+):
+    mock_search_users.return_value = (
+        1,
+        [make_user("@Private User", "private-user")],
+    )
+    client = app.test_client()
+    response = await client.get("/users?username=test-username")
+    assert response.status_code == 200
+    data = str(await response.data)
+    for i in range(20):
+        assert "Username:</strong> @Private User" in data
+        assert "Name:</strong> private-user" in data
+
+
+@pytest.mark.asyncio
 @patch("api.search_posts")
 async def test_posts_route_one_page_posts(mock_search_posts, app):
     mock_search_posts.return_value = (
