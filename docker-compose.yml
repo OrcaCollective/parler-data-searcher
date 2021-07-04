@@ -7,3 +7,12 @@ services:
       - 5005:5000
     env_file:
       - .env
+    links:
+      - redis
+    depends_on:
+      - redis
+
+  redis:
+    image: redis
+    expose:
+      - 6379

@@ -4,6 +4,7 @@ import re
 from quart import Quart, render_template, request, redirect
 from quart_motor import Motor
 from quart_rate_limiter import RateLimiter, rate_limit
+from quart_rate_limiter.redis_store import RedisStore
 import os
 from dotenv import load_dotenv
 from urllib.parse import urlencode
@@ -24,6 +25,7 @@ MONGO_USER = os.environ.get("MONGO_USER")
 MONGO_PASS = os.environ.get("MONGO_PASS")
 MONGO_ENDPOINT = os.environ.get("MONGO_ENDPOINT")
 MONGO_PORT = os.environ.get("MONGO_PORT")
+REDIS_URL = os.environ.get("REDIS_URL")
 
 app = Quart(__name__, static_folder="public", template_folder="views")
 
@@ -33,7 +35,9 @@ mongo = Motor(
     app, uri=f"mongodb://{MONGO_USER}:{MONGO_PASS}@{MONGO_ENDPOINT}:{MONGO_PORT}/parler"
 )
 
-RateLimiter(app)
+redis_store = RedisStore(REDIS_URL)
+
+RateLimiter(app, store=redis_store)
 
 
 @app.errorhandler(429)
