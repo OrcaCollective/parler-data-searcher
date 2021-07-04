@@ -21,6 +21,10 @@ USERNAME_AND_HASHTAG_REGEX = re.compile(r"[@|#]\w+")
 def _create_search_link(m: Match):
     matched_word = m.group(0)
 
+    # There are some users masked with a "Private User" username
+    if matched_word == "@Private":
+        return matched_word
+
     if matched_word.startswith("@"):
         params = {
             USERNAME_QUERY_PARAM: matched_word,
