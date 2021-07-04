@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+from datetime import timedelta
 import re
 from quart import Quart, render_template, request, redirect
 from quart_motor import Motor
+from quart_rate_limiter import RateLimiter, rate_limit
 import os
 from dotenv import load_dotenv
 from urllib.parse import urlencode
@@ -31,16 +33,26 @@ mongo = Motor(
     app, uri=f"mongodb://{MONGO_USER}:{MONGO_PASS}@{MONGO_ENDPOINT}:{MONGO_PORT}/parler"
 )
 
+RateLimiter(app)
 
-################################################################################
-# Home page reroute
-################################################################################
+
+@app.errorhandler(429)
+async def limited(exc):
+    return await render_template("429.html")
+
+
+@app.errorhandler(404)
+async def not_found(exc):
+    return await render_template("404.html")
+
+
 ROUTE_PARAMS = {
     "search_type",
 }
 
 
 @app.route("/")
+@rate_limit(1, timedelta(milliseconds=500))
 async def home():
     search_type = request.args.get("search_type")
 
@@ -55,11 +67,13 @@ async def home():
 
 
 @app.route("/about", strict_slashes=False)
+@rate_limit(1, timedelta(milliseconds=500))
 async def about():
     return await render_template("about.html")
 
 
 @app.route(f"/{POSTS_PATH_COMPONENT}", strict_slashes=False)
+@rate_limit(1, timedelta(seconds=3))
 async def posts():
     username = request.args.get(USERNAME_QUERY_PARAM, "")
     search_content = request.args.get(SEARCH_CONTENT_QUERY_PARAM, "")
@@ -91,6 +105,7 @@ async def posts():
 
 
 @app.route(f"/{USERS_PATH_COMPONENT}", strict_slashes=False)
+@rate_limit(1, timedelta(seconds=1))
 async def users():
     username = request.args.get(USERNAME_QUERY_PARAM)
     page = request.args.get(PAGE_QUERY_PARAM, 0)

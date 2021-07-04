@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>404</h2>
+<p>
+	Whoops, we couldn't find what you were looking for.
+</p>
+<p>
+	How about <a href="{{ url_for('home') }}">returning to the home page</a>?
+</p>
+{% endblock %}
