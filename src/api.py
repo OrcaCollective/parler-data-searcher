@@ -2,6 +2,7 @@ import asyncio
 import logging
 from math import floor
 from typing import Optional, Tuple, TypeVar
+import re
 
 from pymongo.errors import OperationFailure
 from quart_motor import Motor
@@ -22,27 +23,22 @@ def _normalize_username(username: str):
     return username if username.startswith("@") else f"@{username}"
 
 
-def _exact_username_query(username: str) -> dict:
-    formatted_username = _normalize_username(username)
-    return {
-        "$or": [
-            {
-                "name": formatted_username,
-            },
-            {
-                "username": formatted_username,
-            },
-        ],
-    }
+def escape(s: str) -> str:
+    return re.escape(s.strip())
+
+
+def get_highlighter_regex(search_content: str) -> re.Pattern:
+    return re.compile(f"({escape(search_content)})", re.IGNORECASE)
+
+
+def get_match_any_regex(s: str) -> re.Pattern:
+    return re.compile(f".*{escape(s)}.*", re.IGNORECASE)
 
 
 def _username_contains_query(username: str) -> dict:
     # this username is not normalized because the search string can appear
     # anywhere inside a match, not just at the beginning
-    search_regex = {
-        "$regex": f".*{username}.*",
-        "$options": "i",
-    }
+    search_regex = get_match_any_regex(username)
 
     return {
         "$or": [
@@ -57,12 +53,11 @@ def _username_contains_query(username: str) -> dict:
 
 
 def _posts_by_user_query(username: str) -> Optional[dict]:
-    username_query = {}
     if not username:  # avoid an empty $or clause which will cause an error
         return None
 
     formatted_username = _normalize_username(username)
-    username_query = {
+    return {
         "$or": [
             {
                 "username": formatted_username,
@@ -76,19 +71,14 @@ def _posts_by_user_query(username: str) -> Optional[dict]:
         ],
     }
 
-    return username_query
-
 
 def _posts_by_content_query(search_content: str) -> Optional[dict]:
-    content_query = {}
     if not search_content:
         return None
 
-    content_regex = {
-        "$regex": f".*{search_content}.*",
-        "$options": "i",
-    }
-    content_query = {
+    content_regex = get_match_any_regex(search_content)
+
+    return {
         "$or": [
             {
                 "text": content_regex,
@@ -104,8 +94,6 @@ def _posts_by_content_query(search_content: str) -> Optional[dict]:
             },
         ],
     }
-
-    return content_query
 
 
 def _gather_query_parts(*parts: Optional[dict]) -> Optional[list]:
@@ -197,16 +185,6 @@ async def search_users(
     return await _get_entities(
         mongo, DB_USERS, _username_contains_query(username), page
     )
-
-
-async def user_exists(mongo: Motor, username) -> bool:
-    try:
-        query = _exact_username_query(username)
-        record = await mongo.db[DB_USERS].find_one(query)
-        return bool(record)
-    except OperationFailure as err:
-        logger.error(f"Failure while checking if user exists: {err}", err)
-        return False
 
 
 async def search_posts(

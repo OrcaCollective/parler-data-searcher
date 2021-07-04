@@ -50,11 +50,13 @@ def with_search_links(s: str):
     return with_links
 
 
-def with_highlighted_term(s: str, content_regex: Optional[re.Pattern[Any]]):
-    if not s or content_regex is None:
+def with_highlighted_term(s: str, highlighter_regex: Optional[re.Pattern[Any]]):
+    if not s or highlighter_regex is None:
         return s
 
-    with_highlighted_terms = re.sub(content_regex, HIGHLIGHT_SEARCHED_TERM_TEMPLATE, s)
+    with_highlighted_terms = re.sub(
+        highlighter_regex, HIGHLIGHT_SEARCHED_TERM_TEMPLATE, s
+    )
 
     return with_highlighted_terms
 

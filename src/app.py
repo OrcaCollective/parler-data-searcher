@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from datetime import timedelta
-import re
 from quart import Quart, render_template, request, redirect
 from quart_motor import Motor
 from quart_rate_limiter import RateLimiter, rate_limit
@@ -110,9 +109,9 @@ async def posts():
         mongo, username, search_content, page, behavior, mentions
     )
 
-    content_regex = None
+    highlighter_regex = None
     if search_content:
-        content_regex = re.compile(f"({search_content})", re.IGNORECASE)
+        highlighter_regex = api.get_highlighter_regex(search_content)
 
     return await render_template(
         "posts.html",
@@ -124,7 +123,7 @@ async def posts():
         mentions=mentions,
         page_count=page_count,
         search_type=POSTS_PATH_COMPONENT,
-        content_regex=content_regex,
+        highlighter_regex=highlighter_regex,
     )
 
 
