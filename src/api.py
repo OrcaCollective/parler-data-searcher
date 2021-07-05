@@ -24,7 +24,12 @@ def _normalize_username(username: str):
 
 
 def escape(s: str) -> str:
-    return re.escape(s.strip())
+    # throw out fully whitespace searches
+    if s.strip() == "":
+        return ""
+
+    # do not s.strip to allow for word boundary searches like ` bong ` to go through
+    return re.escape(s)
 
 
 def get_highlighter_regex(search_content: str) -> re.Pattern:
