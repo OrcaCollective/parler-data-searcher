@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 from datetime import timedelta
+from typing import Optional
 from urllib.parse import urlencode
 
 from dotenv import load_dotenv
@@ -46,7 +47,12 @@ if QUART_ENV == "development":
 else:
     redis_store = RedisStore(REDIS_URL)
 
-limiter = RateLimiter(app, store=redis_store)
+
+async def key_function() -> Optional[str]:
+    return request.headers.get("X-Forwarded-For", request.remote_addr)
+
+
+limiter = RateLimiter(app, key_function=key_function, store=redis_store)
 
 
 @app.errorhandler(429)
