@@ -171,6 +171,12 @@ def test_escape_trims_whitespace():
     assert api.escape(" ") == ""
 
 
+def test_escape_does_not_trim_whitespace():
+    assert api.escape(" a") == r"\ a"
+    assert api.escape(" + ") == r"\ \+\ "
+    assert api.escape(" bong ") == r"\ bong\ "
+
+
 def test_escape_escapes_regex_special_chars():
     assert api.escape("+") == r"\+"
 
