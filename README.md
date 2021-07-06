@@ -15,7 +15,7 @@ This project uses Poetry to manage environment and dependencies.
 1. Use `pyenv` to install Python 3.9: `pyenv install 3.9.6`
 1. Use the new Python: `pyenv local 3.9.6`
 1. Use the new env: `poetry env use python`
-1. Install dependencies: `poetry install --dev`
+1. Install dependencies: `poetry install`
 1. Install the pre-commit hook: `poetry run pre-commit install`
 1. Copy the `.env.example` to `.env` and fill it in.
 1. Run the app `QUART_DEBUG=1 QUART_ENV=development poetry run hypercorn --reload --bind=0.0.0.0:5000 src/app:app`
