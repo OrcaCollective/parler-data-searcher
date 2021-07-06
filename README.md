@@ -23,8 +23,7 @@ This project uses Poetry to manage environment and dependencies.
 
 ### Run tests
 
-Follow steps 1 - 3 above and then run `pytest`.
-
+Follow steps 1 - 4 above and then run `poetry run pytest`.
 
 ## Rate limiting
 
