@@ -10,13 +10,16 @@ docker compose up
 
 ### If you want to make changes
 
-1. Install a python virtual environment: `python3 -m venv venv`
-2. Activate the virtual environment: `source venv/bin/activate`
-3. Install dependencies: `pip install -r requirements-dev.txt`
-4. Install the pre-commit hook: `pre-commit install`
-5. Copy the `.env.example` to `.env` and fill in the following: `MONGO_USER`, `MONGO_PASS`, `MONGO_ENDPOINT`, `MONGO_PORT`, and `REDIS_URL`
-6. Run the app: `./bin/run_dev.sh`
-7. Make changes and contribute 🙌
+This project uses Poetry to manage environment and dependencies.
+
+1. Use `pyenv` to install Python 3.9: `pyenv install 3.9.6`
+1. Use the new Python: `pyenv local 3.9.6`
+1. Use the new env: `poetry env use python`
+1. Install dependencies: `poetry install --dev`
+1. Install the pre-commit hook: `poetry run pre-commit install`
+1. Copy the `.env.example` to `.env` and fill it in.
+1. Run the app `QUART_DEBUG=1 QUART_ENV=development poetry run hypercorn --reload --bind=0.0.0.0:5000 src/app:app`
+1. Make changes and contribute 🙌
 
 ### Run tests
 
