@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  redis:
+    image: redis
+    expose:
+      - 6379
+
+  parler-search:
+    image: ghcr.io/seattledsa/parler-data-searcher:latest
+    ports:
+      - 5005:5000
+    env_file:
+      - .env
+    depends_on:
+      - redis
