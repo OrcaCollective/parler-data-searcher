@@ -113,7 +113,7 @@ button:active {
   color: black;
 }
 
-.link-container a:last-child {
+.link-container a:not(:first-child) {
   margin-left: 1em;
 }
 

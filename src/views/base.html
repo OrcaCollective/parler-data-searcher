@@ -17,8 +17,9 @@
     </header>
 
     <div class="link-container">
-        <a href="/users">Search users</a>
-        <a href="/posts">Search posts</a>
+        <a href="{{ url_for('about') }}">About</a>
+        <a href="{{ url_for('users') }}">Search users</a>
+        <a href="{{ url_for('posts') }}">Search posts</a>
     </div>
 
     {% block content %}{% endblock %}
@@ -29,11 +30,6 @@
         <p>
             <a href="http://twitter.com/TechBlocSEA" target="_blank" rel="noopener noreferrer">If I break message TechBloc</a>
         </p>
-
-        <p>
-            <a href="{{ url_for('about') }}">About this website</a>
-        </p>
     </footer>
-
 </body>
 </html>

@@ -82,7 +82,7 @@ async def home():
         return redirect(f"/{search_type}?{query_params}")
 
     # by default just render the users search
-    return await render_template("users.html")
+    return await render_template("about.html")
 
 
 @app.route("/about", strict_slashes=False)
